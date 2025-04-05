@@ -1,2 +1,7 @@
-C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\src\main\java\com\versammlungsassistent\controller\TestController.java
-C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\src\main\java\com\versammlungsassistent\Application.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\Application.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\config\WebConfig.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\config\CorsConfig.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\controller\TestController.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\config\SecurityConfig.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\service\CustomUserDetailsService.java
+C:\Users\nadin\VS Projects\versammlungsassistent\Versammlungsassistent\backend\src\main\java\com\versammlungsassistent\controller\AuthController.java
