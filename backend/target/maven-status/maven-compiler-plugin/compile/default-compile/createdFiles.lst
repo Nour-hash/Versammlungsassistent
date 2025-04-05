@@ -1,11 +1,14 @@
+com\versammlungsassistent\repository\UserRepository.class
 com\versammlungsassistent\config\TomcatConfig.class
 com\versammlungsassistent\service\CustomUserDetailsService.class
 com\versammlungsassistent\util\JwtUtil.class
 com\versammlungsassistent\config\CorsConfig.class
 com\versammlungsassistent\filter\JwtRequestFilter.class
 com\versammlungsassistent\Application.class
+com\versammlungsassistent\service\UserService.class
 com\versammlungsassistent\controller\TestController.class
 com\versammlungsassistent\controller\AuthController.class
 com\versammlungsassistent\controller\AuthController$LoginRequest.class
+com\versammlungsassistent\model\User.class
 com\versammlungsassistent\config\WebConfig.class
 com\versammlungsassistent\config\SecurityConfig.class

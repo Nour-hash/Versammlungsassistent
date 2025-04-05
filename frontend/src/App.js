@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-route
 import { jwtDecode } from "jwt-decode";
 import './App.css';
 import "./Login.css"; // Import a CSS file for styling
+import Register from "./Register"; // Import the Register component
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/hello" element={<HelloUser />} />
+        <Route path="/register" element={<Register />} /> {/* Add register route */}
       </Routes>
     </Router>
   );
