@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import './App.css';
-import "./Login.css"; // Import a CSS file for styling
-import Register from "./Register"; // Import the Register component
+import "./styles/Login.css"; // Import a CSS file for styling
+import Register from "./pages/Register"; // Import the Register component
 
 function App() {
   return (
