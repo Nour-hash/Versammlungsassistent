@@ -4,13 +4,14 @@ import { jwtDecode } from "jwt-decode";
 import './App.css';
 import "./styles/Login.css"; // Import a CSS file for styling
 import Register from "./pages/Register"; // Import the Register component
-import Home from "./pages/Home"; // Import the Register component
+import Home from "./pages/Home";
+import Welcome from "./pages/Welcome"; // Import the Register component
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
@@ -76,18 +77,6 @@ function Login() {
         </button>
         {error && <p className="login-error">{error}</p>}
       </div>
-    </div>
-  );
-}
-
-function LandingPage() {
-  const navigate = useNavigate();
-
-  return (
-    <div className="landing-container">
-      <h1>Willkommen</h1>
-      <button onClick={() => navigate("/login")}>Login</button>
-      <button onClick={() => navigate("/register")}>Register</button>
     </div>
   );
 }
