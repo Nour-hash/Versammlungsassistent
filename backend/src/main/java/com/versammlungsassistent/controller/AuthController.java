@@ -5,28 +5,32 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import com.versammlungsassistent.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthenticationManager authenticationManager) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest request) {
+        System.out.println("Login request received for email: " + request.getEmail());
         try {
-            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-
-            // If authentication is successful, return a success message
-            return "User authenticated successfully: " + authentication.getName();
+            String jwt = jwtUtil.generateToken(authentication.getName());
+            System.out.println("Authentication successful for user: " + authentication.getName());
+            return "JWT Token: " + jwt;
         } catch (AuthenticationException e) {
+            System.err.println("Authentication failed: " + e.getMessage());
             return "Authentication failed: " + e.getMessage();
         }
     }
