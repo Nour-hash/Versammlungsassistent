@@ -22,10 +22,11 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User saveUser(String email, String rawPassword) {
+    public User saveUser(String email, String rawPassword, String role) {
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole(role); // Store role as a string ("1" or "2")
         return userRepository.save(user);
     }
 }
