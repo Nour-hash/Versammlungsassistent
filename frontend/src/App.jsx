@@ -8,7 +8,7 @@ import GesellschafterPage from "./pages/GesellschafterPage";
 import InvitePage from "./pages/InvitePage"; // Import the InvitePage component
 import VotePage from "./pages/VotePage"; // Import the VotePage component
 import CreateVotePage from "./pages/CreateVotePage"; // Import the CreateVotePage component
-import GeschFtsfHrerPage from "./pages/GeschäftsführerPage";
+import GeschFtsfHrerPage from "./pages/GeschäftsfuehrerPage";
 import Welcome from "./pages/Welcome"; // Import the VotingSessionPage component
 
 function App() {
@@ -52,7 +52,7 @@ function Login() {
             if (response.ok) {
                 const token = data.replace("JWT Token: ", "");
                 localStorage.setItem("jwt", token);
-                navigate("/home");
+                navigate("/hello");
             } else {
                 setError(data);
             }
