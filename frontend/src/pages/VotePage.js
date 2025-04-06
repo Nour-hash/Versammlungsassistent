@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 function VotePage() {
   const [votes, setVotes] = useState([]);
   const [currentVoteIndex, setCurrentVoteIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
   const [message, setMessage] = useState("");
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -29,7 +30,12 @@ function VotePage() {
     fetchVotes();
   }, [backendUrl]);
 
-  const submitVote = async (result) => {
+  const confirmVote = async () => {
+    if (!selectedOption) {
+      setMessage("Please select an option before confirming.");
+      return;
+    }
+
     const token = localStorage.getItem("jwt");
     const currentVote = votes[currentVoteIndex];
     try {
@@ -39,11 +45,12 @@ function VotePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(result),
+        body: JSON.stringify(selectedOption),
       });
       const data = await response.text();
       if (response.ok) {
         setMessage("Vote submitted successfully!");
+        setSelectedOption(null); // Reset the selected option
         // Move to the next vote
         if (currentVoteIndex + 1 < votes.length) {
           setCurrentVoteIndex(currentVoteIndex + 1);
@@ -70,9 +77,17 @@ function VotePage() {
     <div>
       <h1>Vote Page</h1>
       <h2>{currentVote.topic}</h2>
-      <button onClick={() => submitVote("ja")}>Ja</button>
-      <button onClick={() => submitVote("nein")}>Nein</button>
-      <button onClick={() => submitVote("enthalten")}>Enthalten</button>
+      <div>
+        <button onClick={() => setSelectedOption("ja")}>Ja</button>
+        <button onClick={() => setSelectedOption("nein")}>Nein</button>
+        <button onClick={() => setSelectedOption("enthalten")}>Enthalten</button>
+      </div>
+      {selectedOption && (
+        <div>
+          <p>You selected: {selectedOption}</p>
+          <button onClick={confirmVote}>Stimmabgabe bestätigen</button>
+        </div>
+      )}
       {message && <p>{message}</p>}
     </div>
   );
