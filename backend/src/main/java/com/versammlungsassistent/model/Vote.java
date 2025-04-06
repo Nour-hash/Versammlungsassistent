@@ -17,7 +17,7 @@ public class Vote {
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
-    @JsonBackReference // Verhindert zirkuläre Referenz beim Serialisieren
+    @JsonBackReference
     private Company company;
 
     @ElementCollection
@@ -25,7 +25,6 @@ public class Vote {
     @Column(name = "result")
     private List<String> results; // List of votes (e.g., "yes", "no")
 
-    // Getter und Setter
     public Long getId() {
         return id;
     }

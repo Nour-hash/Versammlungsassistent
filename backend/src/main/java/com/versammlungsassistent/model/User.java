@@ -1,5 +1,6 @@
 package com.versammlungsassistent.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,11 +18,12 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role; // Role can be "GESELLSCHAFTER" or "GESCHAEFTSFUEHRER"
+    private String role;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
-    private Company company; // Each user belongs to a company
+    @JsonBackReference
+    private Company company;
 
     public Long getId() {
         return id;

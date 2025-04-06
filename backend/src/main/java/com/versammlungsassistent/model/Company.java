@@ -16,14 +16,13 @@ public class Company {
     private String name;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    @JsonManagedReference // Verwaltet die Referenz von der Company-Seite aus
+    @JsonManagedReference
     private List<User> users;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    @JsonManagedReference // Verhindert zirkuläre Referenz für Votes
+    @JsonManagedReference
     private List<Vote> votes;
 
-    // Getter und Setter
     public Long getId() {
         return id;
     }
