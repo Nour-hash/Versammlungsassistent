@@ -25,6 +25,9 @@ public class User {
     @JsonBackReference
     private Company company;
 
+    @Column(nullable = true) // Nullable because only "Gesellschafter" have shares
+    private Integer shares;
+
     public Long getId() {
         return id;
     }
@@ -63,5 +66,13 @@ public class User {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public Integer getShares() {
+        return shares;
+    }
+
+    public void setShares(Integer shares) {
+        this.shares = shares;
     }
 }
