@@ -28,18 +28,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         if (userService.findByEmail(request.getEmail()).isPresent()) {
-            return "User already exists";
+            return ResponseEntity.badRequest().body("User already exists");
+        }
+
+        if (request.getCompanyName() == null || request.getCompanyName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Company name cannot be null or empty");
         }
 
         // Validate role (1 = Gesellschafter, 2 = Geschäftsführer)
         if (request.getRole() != 1 && request.getRole() != 2) {
-            return "Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)";
+            return ResponseEntity.badRequest().body("Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)");
         }
 
-        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()));
-        return "User registered successfully";
+        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName());
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/create-invitation")
@@ -80,6 +84,7 @@ public class AuthController {
         private String email;
         private String password;
         private int role; // Role as an integer (1 or 2)
+        private String companyName; // Company name
 
         public String getEmail() {
             return email;
@@ -103,6 +108,14 @@ public class AuthController {
 
         public void setRole(int role) {
             this.role = role;
+        }
+
+        public String getCompanyName() {
+            return companyName;
+        }
+
+        public void setCompanyName(String companyName) {
+            this.companyName = companyName;
         }
     }
 

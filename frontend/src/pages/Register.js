@@ -5,6 +5,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(1); // Default role is "Gesellschafter"
+  const [companyName, setCompanyName] = useState(""); // Add state for company name
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ function Register() {
       const response = await fetch(`${backendUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password, role, companyName }), // Include companyName in the request
       });
       const data = await response.text();
       setLoading(false);
@@ -53,6 +54,13 @@ function Register() {
           placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+        />
+        <input
+          type="text"
+          className="register-input"
+          placeholder="Enter your company name"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
         />
         <select
           className="register-select"

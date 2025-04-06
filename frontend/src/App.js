@@ -7,6 +7,8 @@ import Register from "./pages/Register"; // Import the Register component
 import GesellschafterPage from "./GesellschafterPage";
 import GeschaeftsfuehrerPage from "./GeschaeftsfuehrerPage";
 import InvitePage from "./InvitePage"; // Import the InvitePage component
+import VotePage from "./pages/VotePage"; // Import the VotePage component
+import CreateVotePage from "./pages/CreateVotePage"; // Import the CreateVotePage component
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/hello" element={<HelloUser />} />
         <Route path="/register" element={<Register />} /> {/* Add register route */}
         <Route path="/invite" element={<InvitePage />} /> {/* Add invite route */}
+        <Route path="/votes" element={<VotePage />} /> {/* Add vote route */}
+        <Route path="/create-vote" element={<CreateVotePage />} /> {/* Add create vote route */}
       </Routes>
     </Router>
   );
@@ -84,16 +88,25 @@ function Login() {
 
 function HelloUser() {
   const token = localStorage.getItem("jwt");
-  const decodedToken = token ? jwtDecode(token) : null;
-  console.log("Decoded Token:", decodedToken); // Debugging: Log the decoded token
-  const role = decodedToken ? parseInt(decodedToken.role, 10) : null; // Ensure role is parsed as a number
+  if (!token) {
+    return <div>Access denied: No token provided</div>;
+  }
 
-  if (role === 2) { // Geschäftsführer
-    return <GeschaeftsfuehrerPage />;
-  } else if (role === 1) { // Gesellschafter
-    return <GesellschafterPage />;
-  } else {
-    return <div>Access denied</div>;
+  try {
+    const decodedToken = jwtDecode(token);
+    console.log("Decoded Token:", decodedToken);
+    const role = parseInt(decodedToken.role, 10);
+
+    if (role === 2) { // Geschäftsführer
+      return <GeschaeftsfuehrerPage />;
+    } else if (role === 1) { // Gesellschafter
+      return <GesellschafterPage />;
+    } else {
+      return <div>Access denied: Invalid role</div>;
+    }
+  } catch (error) {
+    console.error("Invalid token:", error);
+    return <div>Access denied: Invalid token</div>;
   }
 }
 

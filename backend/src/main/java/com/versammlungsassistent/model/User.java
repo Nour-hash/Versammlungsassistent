@@ -19,6 +19,10 @@ public class User {
     @Column(nullable = false)
     private String role; // Role can be "GESELLSCHAFTER" or "GESCHAEFTSFUEHRER"
 
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Each user belongs to a company
+
     public Long getId() {
         return id;
     }
@@ -49,5 +53,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }
