@@ -42,7 +42,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)");
         }
 
-        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName());
+        if (request.getRole() == 1 && (request.getShares() == null || request.getShares() <= 0)) {
+            return ResponseEntity.badRequest().body("Gesellschafter must have a valid number of shares");
+        }
+
+        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName(), request.getShares());
         return ResponseEntity.ok("User registered successfully");
     }
 
@@ -85,6 +89,7 @@ public class AuthController {
         private String password;
         private int role; // Role as an integer (1 or 2)
         private String companyName; // Company name
+        private Integer shares; // Shares for Gesellschafter
 
         public String getEmail() {
             return email;
@@ -116,6 +121,14 @@ public class AuthController {
 
         public void setCompanyName(String companyName) {
             this.companyName = companyName;
+        }
+
+        public Integer getShares() {
+            return shares;
+        }
+
+        public void setShares(Integer shares) {
+            this.shares = shares;
         }
     }
 

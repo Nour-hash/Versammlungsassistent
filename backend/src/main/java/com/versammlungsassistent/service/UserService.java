@@ -26,7 +26,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User saveUser(String email, String rawPassword, String role, String companyName) {
+    public User saveUser(String email, String rawPassword, String role, String companyName, Integer shares) {
         if (companyName == null || companyName.trim().isEmpty()) {
             throw new IllegalArgumentException("Company name cannot be null or empty");
         }
@@ -43,6 +43,11 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRole(role);
         user.setCompany(company);
+
+        if ("1".equals(role)) { // If the user is a Gesellschafter
+            user.setShares(shares);
+        }
+
         return userRepository.save(user);
     }
 }
