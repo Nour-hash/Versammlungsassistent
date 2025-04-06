@@ -9,6 +9,7 @@ import GeschaeftsfuehrerPage from "./GeschaeftsfuehrerPage";
 import InvitePage from "./InvitePage"; // Import the InvitePage component
 import VotePage from "./pages/VotePage"; // Import the VotePage component
 import CreateVotePage from "./pages/CreateVotePage"; // Import the CreateVotePage component
+import VotingSessionPage from "./pages/VotingSessionPage"; // Import the VotingSessionPage component
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} /> {/* Add register route */}
         <Route path="/invite" element={<InvitePage />} /> {/* Add invite route */}
         <Route path="/votes" element={<VotePage />} /> {/* Add vote route */}
+        <Route path="/votes/:voteId" element={<VotingSessionPage />} /> {/* Add voting session route */}
         <Route path="/create-vote" element={<CreateVotePage />} /> {/* Add create vote route */}
       </Routes>
     </Router>
