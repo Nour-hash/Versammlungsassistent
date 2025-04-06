@@ -87,8 +87,8 @@ function GeschFtsfHrerPage() {
                     Gesellschafter hinzufügen
                 </button>
 
-                <button onClick={goToCreateVotePage}>Create a New Vote</button>
-                <button onClick={goToInvitePage}>Go to Invitation Page</button>
+                <button className="home-button" onClick={goToCreateVotePage}>Create a New Vote</button>
+                <button className="home-button" onClick={goToInvitePage}>Go to Invitation Page</button>
 
                 {showGesellschafterForm && (
                     <form className="gesellschafter-form" onSubmit={handleAddGesellschafter}>
@@ -117,6 +117,7 @@ function GeschFtsfHrerPage() {
                             onChange={(e) => setGesellschafterStimmen(e.target.value)}
                             required
                         />
+
                         <button className="gesellschafter-submit-button" type="submit" disabled={loadingGesellschafter}>
                             {loadingGesellschafter ? "Bitte warten..." : "Gesellschafter erstellen"}
                         </button>
