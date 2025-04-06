@@ -14,11 +14,15 @@ function VotePage() {
         });
         if (response.ok) {
           const data = await response.json();
+          console.log("Fetched votes:", data); // Log the response data
           setVotes(data);
         } else {
-          setMessage("Failed to fetch votes");
+          const errorText = await response.text();
+          console.error("Error fetching votes:", errorText);
+          setMessage("Failed to fetch votes: " + errorText);
         }
       } catch (error) {
+        console.error("An error occurred while fetching votes:", error);
         setMessage("An error occurred while fetching votes");
       }
     };
@@ -39,6 +43,7 @@ function VotePage() {
       const data = await response.text();
       setMessage(data);
     } catch (error) {
+      console.error("Failed to submit vote:", error);
       setMessage("Failed to submit vote");
     }
   };
@@ -47,13 +52,14 @@ function VotePage() {
     <div>
       <h1>Vote Page</h1>
       {votes.length === 0 ? (
-        <p>No votes available</p>
+        <p>{message || "No votes available"}</p>
       ) : (
         votes.map((vote) => (
           <div key={vote.id}>
             <h2>{vote.topic}</h2>
-            <button onClick={() => submitVote(vote.id, "yes")}>Yes</button>
-            <button onClick={() => submitVote(vote.id, "no")}>No</button>
+            <button onClick={() => submitVote(vote.id, "ja")}>Ja</button>
+            <button onClick={() => submitVote(vote.id, "nein")}>Nein</button>
+            <button onClick={() => submitVote(vote.id, "enthalten")}>Enthalten</button>
           </div>
         ))
       )}

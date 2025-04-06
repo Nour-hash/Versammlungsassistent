@@ -1,5 +1,6 @@
 package com.versammlungsassistent.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -12,11 +13,17 @@ public class Company {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name; // Ensure this field is always set
+    private String name;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private List<User> users; // A company can have multiple users
+    @JsonManagedReference // Verwaltet die Referenz von der Company-Seite aus
+    private List<User> users;
 
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    @JsonManagedReference // Verhindert zirkuläre Referenz für Votes
+    private List<Vote> votes;
+
+    // Getter und Setter
     public Long getId() {
         return id;
     }
@@ -39,5 +46,13 @@ public class Company {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public List<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<Vote> votes) {
+        this.votes = votes;
     }
 }
