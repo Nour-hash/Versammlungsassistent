@@ -2,28 +2,28 @@ package com.versammlungsassistent.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "votes")
+public class Vote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private String role;
+    private String topic;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference
     private Company company;
+
+    @ElementCollection
+    @CollectionTable(name = "vote_results", joinColumns = @JoinColumn(name = "vote_id"))
+    @Column(name = "result")
+    private List<String> results; // List of votes (e.g., "yes", "no")
 
     public Long getId() {
         return id;
@@ -33,28 +33,12 @@ public class User {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public Company getCompany() {
@@ -63,5 +47,13 @@ public class User {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public List<String> getResults() {
+        return results;
+    }
+
+    public void setResults(List<String> results) {
+        this.results = results;
     }
 }

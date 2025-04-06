@@ -6,8 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import com.versammlungsassistent.util.JwtUtil;
+import com.versammlungsassistent.model.User;
 import com.versammlungsassistent.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,12 +28,35 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         if (userService.findByEmail(request.getEmail()).isPresent()) {
-            return "User already exists";
+            return ResponseEntity.badRequest().body("User already exists");
         }
-        userService.saveUser(request.getEmail(), request.getPassword());
-        return "User registered successfully";
+
+        if (request.getCompanyName() == null || request.getCompanyName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Company name cannot be null or empty");
+        }
+
+        // Validate role (1 = Gesellschafter, 2 = Geschäftsführer)
+        if (request.getRole() != 1 && request.getRole() != 2) {
+            return ResponseEntity.badRequest().body("Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)");
+        }
+
+        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName());
+        return ResponseEntity.ok("User registered successfully");
+    }
+
+    @PostMapping("/create-invitation")
+    public ResponseEntity<String> createInvitation(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!"2".equals(user.getRole())) { // Check if the user is a Geschäftsführer
+            return ResponseEntity.status(403).body("Access denied: Only Geschäftsführer can create invitations");
+        }
+
+        // Logic for creating an invitation (e.g., saving to the database) goes here
+        return ResponseEntity.ok("Invitation created successfully");
     }
 
     @PostMapping("/login")
@@ -41,12 +66,56 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-            String jwt = jwtUtil.generateToken(authentication.getName());
-            System.out.println("Authentication successful for user: " + authentication.getName());
+            String email = authentication.getName();
+            String role = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getRole(); // Get the user's role
+            String jwt = jwtUtil.generateToken(email, role);
+            System.out.println("Authentication successful for user: " + email + " with role: " + role);
             return "JWT Token: " + jwt;
         } catch (AuthenticationException e) {
             System.err.println("Authentication failed: " + e.getMessage());
             return "Authentication failed: " + e.getMessage();
+        }
+    }
+
+    // DTO for register request
+    public static class RegisterRequest {
+        private String email;
+        private String password;
+        private int role; // Role as an integer (1 or 2)
+        private String companyName; // Company name
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public int getRole() {
+            return role;
+        }
+
+        public void setRole(int role) {
+            this.role = role;
+        }
+
+        public String getCompanyName() {
+            return companyName;
+        }
+
+        public void setCompanyName(String companyName) {
+            this.companyName = companyName;
         }
     }
 
