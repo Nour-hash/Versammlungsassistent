@@ -4,6 +4,8 @@ import "../styles/Register.css"; // Import a CSS file for styling
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState(1); // Default role is "Gesellschafter"
+  const [companyName, setCompanyName] = useState(""); // Add state for company name
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ function Register() {
       const response = await fetch(`${backendUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role, companyName }), // Include companyName in the request
       });
       const data = await response.text();
       setLoading(false);
@@ -37,7 +39,7 @@ function Register() {
 
   return (
     <div className="register-container">
-      <h1 className="register-title">Sign up as CEO</h1>
+      <h1 className="register-title">Register</h1>
       <div className="register-form">
         <input
           type="email"
@@ -53,6 +55,21 @@ function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <input
+          type="text"
+          className="register-input"
+          placeholder="Enter your company name"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+        />
+        <select
+          className="register-select"
+          value={role}
+          onChange={(e) => setRole(parseInt(e.target.value, 10))}
+        >
+          <option value={1}>Gesellschafter</option>
+          <option value={2}>Geschäftsführer</option>
+        </select>
         <button className="register-button" onClick={handleRegister} disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </button>

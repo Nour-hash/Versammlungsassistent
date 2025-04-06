@@ -1,7 +1,27 @@
-import React from "react";
+import React, {useState} from "react";
 import '../styles/InvitePage.css';
 
 const InvitePage = () => {
+    const [message, setMessage] = useState("");
+    const backendUrl = process.env.REACT_APP_BACKEND_URL; // Fallback to localhost:8080
+
+    const createInvitation = async () => {
+        const token = localStorage.getItem("jwt");
+        try {
+            const response = await fetch(`${backendUrl}/api/auth/create-invitation`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await response.text();
+            setMessage(data);
+        } catch (error) {
+            setMessage("Failed to create invitation");
+        }
+    };
+
     return (
         <div className="meeting-wrapper">
             <button className="top-button">Einladung erstellen</button>
@@ -11,7 +31,7 @@ const InvitePage = () => {
             <form className="form">
                 <div className="field">
                     <label>Meetingtitel</label>
-                    <input type="text" defaultValue="Generalversammlung Q1 2024" />
+                    <input type="text" defaultValue="Generalversammlung Q1 2024"/>
                 </div>
 
                 {/* Datum */}
@@ -35,7 +55,7 @@ const InvitePage = () => {
                 {/* Ort */}
                 <div className="field">
                     <label>Ort oder Konferenzlink</label>
-                    <input type="text" placeholder="Ort oder Konferenzlink" />
+                    <input type="text" placeholder="Ort oder Konferenzlink"/>
                 </div>
 
                 {/* Tagesordnung */}
@@ -43,7 +63,8 @@ const InvitePage = () => {
                     <label>Tagesordnung</label>
                     <p className="info">
                         Alle Punkte über, über die in der Versammlung abgestimmt wird →
-                        Berechtigung von Gesellschaftern mit mindestens 10 % (durch Gesellschaftsvertrag nach unten anpassbar)
+                        Berechtigung von Gesellschaftern mit mindestens 10 % (durch Gesellschaftsvertrag nach unten
+                        anpassbar)
                         Stammkapital Punkte zur Hinzufügung
                     </p>
                     <ol className="agenda-list">
