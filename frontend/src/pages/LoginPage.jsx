@@ -81,77 +81,82 @@ function LoginPage() {
 
   return (
     <div className="auth-page-container">
-      {/* LoginPage Panel */}
-      <div className="auth-panel login-panel">
-        <h1 className="panel-title">Login</h1>
-        <div className="panel-form">
-          <input
-            type="email"
-            className="input-field"
-            placeholder="Enter your email"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Enter your password"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-          />
-          <button
-            className="button login-button"
-            onClick={handleLogin}
-            disabled={loginLoading}
-          >
-            {loginLoading ? "Logging in..." : "LoginPage"}
-          </button>
-          {loginError && <p className="error-text">{loginError}</p>}
+      <h1 className="auth-page-title">
+        Willkommen beim Gesellschafter-Assistenten
+      </h1>
+      <div className="auth-panels">
+        {/* Login Panel */}
+        <div className="auth-panel login-panel">
+          <h2 className="panel-title">Login</h2>
+          <div className="panel-form">
+            <input
+              type="email"
+              className="input-field"
+              placeholder="Enter your email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              className="input-field"
+              placeholder="Enter your password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+            />
+            <button
+              className="button login-button"
+              onClick={handleLogin}
+              disabled={loginLoading}
+            >
+              {loginLoading ? "Logging in..." : "LoginPage"}
+            </button>
+            {loginError && <p className="error-text">{loginError}</p>}
+          </div>
         </div>
-      </div>
 
-      {/* Register Panel */}
-      <div className="auth-panel register-panel">
-        <h1 className="panel-title">Register</h1>
-        <div className="panel-form">
-          <input
-            type="email"
-            className="input-field"
-            placeholder="Enter your email"
-            value={regEmail}
-            onChange={(e) => setRegEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Enter your password"
-            value={regPassword}
-            onChange={(e) => setRegPassword(e.target.value)}
-          />
-          <input
-            type="text"
-            className="input-field"
-            placeholder="Enter your company name"
-            value={regCompanyName}
-            onChange={(e) => setRegCompanyName(e.target.value)}
-          />
-          <select
-            className="input-field select-field"
-            value={regRole}
-            onChange={(e) => setRegRole(parseInt(e.target.value, 10))}
-          >
-            <option value={1}>Gesellschafter</option>
-            <option value={2}>Geschäftsführer</option>
-          </select>
-          <button
-            className="button register-button"
-            onClick={handleRegister}
-            disabled={regLoading}
-          >
-            {regLoading ? "Registering..." : "Register"}
-          </button>
-          {regError && <p className="error-text">{regError}</p>}
-          {regSuccess && <p className="success-text">{regSuccess}</p>}
+        {/* Register Panel */}
+        <div className="auth-panel register-panel">
+          <h2 className="panel-title">Register</h2>
+          <div className="panel-form">
+            <input
+              type="email"
+              className="input-field"
+              placeholder="Enter your email"
+              value={regEmail}
+              onChange={(e) => setRegEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              className="input-field"
+              placeholder="Enter your password"
+              value={regPassword}
+              onChange={(e) => setRegPassword(e.target.value)}
+            />
+            <input
+              type="text"
+              className="input-field"
+              placeholder="Enter your company name"
+              value={regCompanyName}
+              onChange={(e) => setRegCompanyName(e.target.value)}
+            />
+            <select
+              className="input-field select-field"
+              value={regRole}
+              onChange={(e) => setRegRole(parseInt(e.target.value, 10))}
+            >
+              <option value={1}>Gesellschafter</option>
+              <option value={2}>Geschäftsführer</option>
+            </select>
+            <button
+              className="button register-button"
+              onClick={handleRegister}
+              disabled={regLoading}
+            >
+              {regLoading ? "Registering..." : "Register"}
+            </button>
+            {regError && <p className="error-text">{regError}</p>}
+            {regSuccess && <p className="success-text">{regSuccess}</p>}
+          </div>
         </div>
       </div>
     </div>

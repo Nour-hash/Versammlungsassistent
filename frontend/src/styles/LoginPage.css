@@ -1,51 +1,68 @@
-/* Container der beiden Panels */
+/* Gesamtcontainer für das 16:9 Layout */
 .auth-page-container {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
+  flex-direction: column; /* Titel oben, Panels darunter */
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh; /* damit es die volle Höhe nutzt */
   background-color: #f5f5f5;
-  min-height: 100vh;
   font-family: Arial, sans-serif;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
-/* Gemeinsame Eigenschaften der Panels */
+/* Der Titel über den Panels */
+.auth-page-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+/* Container, der Login und Register nebeneinander legt */
+.auth-panels {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 80%; /* Anpassen, um auf 16:9 schön zu wirken */
+  max-width: 1200px; /* Optional: max. Breite */
+  margin: 0 auto; /* Zentriert im Eltern-Container */
+}
+
+/* Gemeinsame Eigenschaften der Panels (Login und Register) */
 .auth-panel {
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex: 1; /* Gleichgroße Panels */
+  max-width: 450px; /* Panel-Breite begrenzen, falls gewünscht */
   padding: 2rem;
-  width: 300px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Überschriften */
+/* Überschriften der jeweiligen Panels */
 .panel-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
   color: #333;
 }
 
-/* Formularfelder im Panel */
+/* Formular in den Panels */
 .panel-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* Input Felder und Select */
+/* Inputs, Select-Felder */
 .input-field {
   padding: 0.5rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 5px;
-}
-
-.select-field {
-  /* Zusätzliche Anpassungen möglich */
 }
 
 /* Buttons */
@@ -71,7 +88,7 @@
   cursor: not-allowed;
 }
 
-/* Fehler- und Erfolgsmeldungen */
+/* Fehler- & Erfolgsmeldungen */
 .error-text {
   color: red;
   text-align: center;
