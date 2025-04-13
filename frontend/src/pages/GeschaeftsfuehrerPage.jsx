@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import "../styles/Home.css";
+import "../styles/GeschaeftsfuehrerPage.css";
 
 function GeschFtsfHrerPage() {
     const navigate = useNavigate();

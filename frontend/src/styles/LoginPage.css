@@ -1,0 +1,85 @@
+/* Container der beiden Panels */
+.auth-page-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Gemeinsame Eigenschaften der Panels */
+.auth-panel {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 300px;
+}
+
+/* Überschriften */
+.panel-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+/* Formularfelder im Panel */
+.panel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Input Felder und Select */
+.input-field {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.select-field {
+  /* Zusätzliche Anpassungen möglich */
+}
+
+/* Buttons */
+.button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-button {
+  background-color: #007bff;
+}
+
+.register-button {
+  background-color: #28a745;
+}
+
+.button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Fehler- und Erfolgsmeldungen */
+.error-text {
+  color: red;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.success-text {
+  color: green;
+  text-align: center;
+  font-size: 0.9rem;
+}
