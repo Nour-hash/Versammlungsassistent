@@ -10,6 +10,7 @@ function GeschFtsfHrerPage() {
     const [showGesellschafterForm, setShowGesellschafterForm] = useState(false);
     const [gesellschafterName, setGesellschafterName] = useState("");
     const [gesellschafterEmail, setGesellschafterEmail] = useState("");
+    const [gesellschafterPasswort, setGesellschafterPasswort] = useState("");
     const [gesellschafterStimmen, setGesellschafterStimmen] = useState("");
     const [gesellschafterSuccess, setGesellschafterSuccess] = useState("");
     const [gesellschafterError, setGesellschafterError] = useState("");
@@ -38,38 +39,47 @@ function GeschFtsfHrerPage() {
     };
 
     const handleAddGesellschafter = async (e) => {
-        e.preventDefault();
-        setGesellschafterError("");
-        setGesellschafterSuccess("");
-        setLoadingGesellschafter(true);
+    e.preventDefault();
+    setGesellschafterError("");
+    setGesellschafterSuccess("");
+    setLoadingGesellschafter(true);
 
-        // Anpassen: Hier wird ein POST-Request an einen angenommenen Endpoint geschickt.
-        // Der Request enthält Name, E-Mail, Stimmen und die Rolle "Gesellschafter".
-        try {
-            const response = await fetch(`${backendUrl}/api/auth/registerGesellschafter`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    name: gesellschafterName,
-                    email: gesellschafterEmail,
-                    stimmen: gesellschafterStimmen,
-                    role: "Gesellschafter"
-                }),
-            });
-            const data = await response.text();
-            setLoadingGesellschafter(false);
+    // Abrufen des Tokens aus localStorage
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      setGesellschafterError("Kein gültiger Token vorhanden. Bitte logge dich erneut ein.");
+      setLoadingGesellschafter(false);
+      return;
+    }
 
-            if (response.ok) {
-                setGesellschafterSuccess("Gesellschafter erfolgreich hinzugefügt!");
-            } else {
-                setGesellschafterError(data);
-            }
-        } catch (error) {
-            setLoadingGesellschafter(false);
-            setGesellschafterError("Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.");
-            console.error("Fehler beim Hinzufügen des Gesellschafters:", error);
+    try {
+        const response = await fetch(`${backendUrl}/api/auth/registerGesellschafter`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Hier wird der Token angehängt
+            },
+            body: JSON.stringify({
+                email: gesellschafterEmail,
+                password: gesellschafterPasswort,
+                shares: parseInt(gesellschafterStimmen, 10)
+            }),
+        });
+        const data = await response.text();
+        setLoadingGesellschafter(false);
+
+        if (response.ok) {
+            setGesellschafterSuccess("Gesellschafter erfolgreich hinzugefügt!");
+        } else {
+            setGesellschafterError(data);
         }
-    };
+    } catch (error) {
+        setLoadingGesellschafter(false);
+        setGesellschafterError("Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.");
+        console.error("Fehler beim Hinzufügen des Gesellschafters:", error);
+    }
+};
+
 
     return (
         <div className="home-container">
@@ -110,6 +120,20 @@ function GeschFtsfHrerPage() {
                             required
                         />
                         <input
+                            type="password"
+                            className="gesellschafter-input"
+                            placeholder="Passwort"
+                            value={gesellschafterPasswort}
+                            onChange={(e) => setGesellschafterPasswort(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="date"
+                            className="gesellschafter-input"
+                            placeholder="Geburtsdatum"
+                            required
+                        />
+                        <input
                             type="number"
                             className="gesellschafter-input"
                             placeholder="Anzahl Stimmen"
@@ -117,7 +141,6 @@ function GeschFtsfHrerPage() {
                             onChange={(e) => setGesellschafterStimmen(e.target.value)}
                             required
                         />
-
                         <button className="gesellschafter-submit-button" type="submit" disabled={loadingGesellschafter}>
                             {loadingGesellschafter ? "Bitte warten..." : "Gesellschafter erstellen"}
                         </button>

@@ -8,7 +8,7 @@ import GesellschafterPage from "./pages/GesellschafterPage";
 import InvitePage from "./pages/InvitePage"; // Import the InvitePage component
 import VotePage from "./pages/VotePage"; // Import the VotePage component
 import CreateVotePage from "./pages/CreateVotePage"; // Import the CreateVotePage component
-import GeschFtsfHrerPage from "./pages/GeschäftsfuehrerPage";
+import GeschFtsfHrerPage from "./pages/GeschaeftsfuehrerPage";
 import Welcome from "./pages/Welcome"; // Import the VotingSessionPage component
 
 function App() {
@@ -17,13 +17,12 @@ function App() {
             <Routes>
                 <Route path="/" element={<Welcome/>}/>
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/hello" element={<HelloUser/>}/>
+                <Route path="/hello" element={<SelectUserType/>}/>
                 <Route path="/register" element={<Register/>}/> {/* Add register route */}
                 <Route path="/invite" element={<InvitePage/>}/> {/* Add invite route */}
                 <Route path="/votes" element={<VotePage/>}/> {/* Add vote route */}
                 <Route path="/create-vote" element={<CreateVotePage/>}/> {/* Add create vote route */}
                 <Route path="/home" element={<GeschFtsfHrerPage/>}/>
-
             </Routes>
         </Router>
     );
@@ -90,7 +89,7 @@ function Login() {
     );
 }
 
-function HelloUser() {
+function SelectUserType() {
     const token = localStorage.getItem("jwt");
     if (!token) {
         return <div>Access denied: No token provided</div>;

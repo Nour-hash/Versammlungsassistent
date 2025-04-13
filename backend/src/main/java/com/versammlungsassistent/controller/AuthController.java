@@ -1,5 +1,6 @@
 package com.versammlungsassistent.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,6 +51,39 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully");
     }
 
+    @PostMapping("/registerGesellschafter")
+    public ResponseEntity<String> registerGesellschafter(
+            @RequestBody GesellschafterRequest request,
+            @RequestHeader("Authorization") String token) {
+        // Entferne den "Bearer " Präfix
+        String jwtToken = token.substring(7);
+        String email = jwtUtil.extractUsername(jwtToken);
+        User geschaeftsfuehrer = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Geschäftsführer nicht gefunden"));
+
+        // Prüfe, ob der angemeldete User tatsächlich Geschäftsführer ist (Rolle "2")
+        if (!"2".equals(geschaeftsfuehrer.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Nicht berechtigt!");
+        }
+
+        try {
+            // Die company des Geschäftsführers wird übernommen.
+            // Die Rolle wird hartcodiert auf "1" (Gesellschafter) gesetzt.
+            userService.saveUser(
+                    request.getEmail(),
+                    request.getPassword(),
+                    "1",
+                    geschaeftsfuehrer.getCompany().getName(), // Company des Geschäftsführers
+                    request.getShares()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        return ResponseEntity.ok("Gesellschafter erfolgreich registriert");
+    }
+
+
     @PostMapping("/create-invitation")
     public ResponseEntity<String> createInvitation(@RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractUsername(token.substring(7));
@@ -68,18 +102,50 @@ public class AuthController {
         System.out.println("Login request received for email: " + request.getEmail());
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
             String email = authentication.getName();
             String role = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"))
-                .getRole(); // Get the user's role
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getRole(); // Get the user's role
             String jwt = jwtUtil.generateToken(email, role);
             System.out.println("Authentication successful for user: " + email + " with role: " + role);
             return "JWT Token: " + jwt;
         } catch (AuthenticationException e) {
             System.err.println("Authentication failed: " + e.getMessage());
             return "Authentication failed: " + e.getMessage();
+        }
+    }
+
+    // DTO für den Request an den neuen Endpunkt
+    public static class GesellschafterRequest {
+        private String email;
+        private String password;
+        private Integer shares; // Anzahl Stimmen
+
+        // Getter und Setter
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public Integer getShares() {
+            return shares;
+        }
+
+        public void setShares(Integer shares) {
+            this.shares = shares;
         }
     }
 
@@ -153,4 +219,5 @@ public class AuthController {
             this.password = password;
         }
     }
+
 }
