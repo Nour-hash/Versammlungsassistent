@@ -108,7 +108,7 @@ function LoginPage() {
               onClick={handleLogin}
               disabled={loginLoading}
             >
-              {loginLoading ? "Logging in..." : "LoginPage"}
+              {loginLoading ? "Logging in..." : "Einloggen"}
             </button>
             {loginError && <p className="error-text">{loginError}</p>}
           </div>
@@ -139,20 +139,12 @@ function LoginPage() {
               value={regCompanyName}
               onChange={(e) => setRegCompanyName(e.target.value)}
             />
-            <select
-              className="input-field select-field"
-              value={regRole}
-              onChange={(e) => setRegRole(parseInt(e.target.value, 10))}
-            >
-              <option value={1}>Gesellschafter</option>
-              <option value={2}>Geschäftsführer</option>
-            </select>
             <button
               className="button register-button"
               onClick={handleRegister}
               disabled={regLoading}
             >
-              {regLoading ? "Registering..." : "Register"}
+              {regLoading ? "Registering..." : "Registrieren"}
             </button>
             {regError && <p className="error-text">{regError}</p>}
             {regSuccess && <p className="success-text">{regSuccess}</p>}

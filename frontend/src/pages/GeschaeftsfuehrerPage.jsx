@@ -76,10 +76,6 @@ function GeschFtsfHrerPage() {
             console.error("Fehler beim Hinzufügen des Gesellschafters:", error);
         }
 
-        const handleLogout = () => {
-            localStorage.removeItem("jwt");
-            navigate("/login");
-        };
     };
 
 

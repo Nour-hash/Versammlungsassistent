@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
 
-const Sidebar = ({ activePage, onLogout }) => {
+const Sidebar = ({ activePage}) => {
   const navigate = useNavigate();
   return (
     <div className="sidebar">
@@ -14,7 +14,8 @@ const Sidebar = ({ activePage, onLogout }) => {
         >
           Home
         </li>
-        <li className="sidebar-item" onClick={onLogout}>
+        <li className="sidebar-item"
+            onClick={() => navigate("/")}>
           Logout
         </li>
       </ul>

@@ -43,10 +43,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)");
         }
 
-        if (request.getRole() == 1 && (request.getShares() == null || request.getShares() <= 0)) {
-            return ResponseEntity.badRequest().body("Gesellschafter must have a valid number of shares");
-        }
-
         userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName(), request.getShares());
         return ResponseEntity.ok("User registered successfully");
     }
