@@ -116,7 +116,7 @@ function LoginPage() {
 
         {/* Register Panel */}
         <div className="auth-panel register-panel">
-          <h2 className="panel-title">Register</h2>
+          <h2 className="panel-title">Als Geschäftsführer registrieren</h2>
           <div className="panel-form">
             <input
               type="email"

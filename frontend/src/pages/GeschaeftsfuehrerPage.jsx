@@ -115,67 +115,70 @@ function GeschFtsfHrerPage() {
 
                 {/* Form-Container für Gesellschafter */}
                 {showGesellschafterForm && (
-                    <div className="form-container">
-                        <h2>Neuen Gesellschafter anlegen</h2>
-                        <form onSubmit={handleAddGesellschafter}>
-                            <div className="form-row">
-                                <input
-                                    type="text"
-                                    className="gesellschafter-input"
-                                    placeholder="Name"
-                                    value={gesellschafterName}
-                                    onChange={(e) => setGesellschafterName(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="form-row">
-                                <input
-                                    type="email"
-                                    className="gesellschafter-input"
-                                    placeholder="E-Mail"
-                                    value={gesellschafterEmail}
-                                    onChange={(e) => setGesellschafterEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="form-row">
-                                <input
-                                    type="password"
-                                    className="gesellschafter-input"
-                                    placeholder="Passwort"
-                                    value={gesellschafterPasswort}
-                                    onChange={(e) => setGesellschafterPasswort(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="form-row">
-                                <input
-                                    type="date"
-                                    className="gesellschafter-input"
-                                    placeholder="Geburtsdatum"
-                                    required
-                                />
-                            </div>
-                            <div className="form-row">
-                                <input
-                                    type="number"
-                                    className="gesellschafter-input"
-                                    placeholder="Anzahl Stimmen"
-                                    value={gesellschafterStimmen}
-                                    onChange={(e) => setGesellschafterStimmen(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <button
-                                className="gesellschafter-submit-button"
-                                type="submit"
-                                disabled={loadingGesellschafter}
-                            >
-                                {loadingGesellschafter ? "Bitte warten..." : "Gesellschafter erstellen"}
-                            </button>
-                            {gesellschafterError && <p className="gesellschafter-error">{gesellschafterError}</p>}
-                            {gesellschafterSuccess && <p className="gesellschafter-success">{gesellschafterSuccess}</p>}
-                        </form>
+                    <div className="modal-overlay" onClick={() => setShowGesellschafterForm(false)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <h2>Neuen Gesellschafter anlegen</h2>
+                            <form onSubmit={handleAddGesellschafter}>
+                                <div className="form-row">
+                                    <input
+                                        type="text"
+                                        className="gesellschafter-input"
+                                        placeholder="Name"
+                                        value={gesellschafterName}
+                                        onChange={(e) => setGesellschafterName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <input
+                                        type="email"
+                                        className="gesellschafter-input"
+                                        placeholder="E-Mail"
+                                        value={gesellschafterEmail}
+                                        onChange={(e) => setGesellschafterEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <input
+                                        type="password"
+                                        className="gesellschafter-input"
+                                        placeholder="Passwort"
+                                        value={gesellschafterPasswort}
+                                        onChange={(e) => setGesellschafterPasswort(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <input
+                                        type="date"
+                                        className="gesellschafter-input"
+                                        placeholder="Geburtsdatum"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <input
+                                        type="number"
+                                        className="gesellschafter-input"
+                                        placeholder="Anzahl Stimmen"
+                                        value={gesellschafterStimmen}
+                                        onChange={(e) => setGesellschafterStimmen(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <button className="gesellschafter-submit-button" type="submit"
+                                        disabled={loadingGesellschafter}>
+                                    {loadingGesellschafter ? "Bitte warten..." : "Gesellschafter erstellen"}
+                                </button>
+                                {gesellschafterError && <p className="gesellschafter-error">{gesellschafterError}</p>}
+                                {gesellschafterSuccess &&
+                                    <p className="gesellschafter-success">{gesellschafterSuccess}</p>}
+                                <button className="modal-close-button"
+                                        onClick={() => setShowGesellschafterForm(false)}>X
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 )}
 
