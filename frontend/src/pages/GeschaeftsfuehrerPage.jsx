@@ -83,7 +83,6 @@ function GeschFtsfHrerPage() {
         <div className="page-container">
             {/* Sidebar-Komponente links */}
             <Sidebar activePage="home"/>
-
             {/* Hauptbereich */}
             <div className="main-content">
                 <div className="welcome-container">
@@ -161,6 +160,13 @@ function GeschFtsfHrerPage() {
                                         value={gesellschafterStimmen}
                                         onChange={(e) => setGesellschafterStimmen(e.target.value)}
                                         required
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <input
+                                        type="percentage"
+                                        className="gesellschafter-input"
+                                        placeholder="Anzahl am Standkapital in %"
                                     />
                                 </div>
                                 <button className="gesellschafter-submit-button" type="submit"
