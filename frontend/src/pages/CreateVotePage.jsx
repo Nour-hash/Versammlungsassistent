@@ -6,7 +6,15 @@ function CreateVotePage() {
     const [message, setMessage] = useState("");
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+    const [startTime, setStartTime] = useState("");
+const [endTime, setEndTime] = useState("");
+
+
     const handleCreateVote = async () => {
+        if (new Date(endTime) <= new Date(startTime)) {
+            setMessage("End time must be after start time");
+            return;
+        }
         const token = localStorage.getItem("jwt");
         try {
             const response = await fetch(`${backendUrl}/api/votes/create`, {
@@ -15,7 +23,7 @@ function CreateVotePage() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({topic}),
+                body: JSON.stringify({topic, startTime, endTime}),
             });
             const data = await response.text();
             if (response.ok) {
@@ -40,6 +48,19 @@ function CreateVotePage() {
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                 />
+                <input
+    type="datetime-local"
+    value={startTime}
+    onChange={(e) => setStartTime(e.target.value)}
+    placeholder="Start Time"
+/>
+<input
+    type="datetime-local"
+    value={endTime}
+    onChange={(e) => setEndTime(e.target.value)}
+    placeholder="End Time"
+/>
+
                 <button onClick={handleCreateVote}>Create Vote</button>
                 {message && <p>{message}</p>}
             </div>

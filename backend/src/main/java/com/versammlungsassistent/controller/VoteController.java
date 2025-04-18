@@ -26,18 +26,25 @@ public class VoteController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createVote(@RequestHeader("Authorization") String token, @RequestBody Vote vote) {
-        String email = jwtUtil.extractUsername(token.substring(7));
-        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+public ResponseEntity<String> createVote(@RequestHeader("Authorization") String token,
+                                         @RequestBody Vote vote) {
+    String email = jwtUtil.extractUsername(token.substring(7));
+    User user = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!"2".equals(user.getRole())) { // Only Geschäftsführer can create votes
-            return ResponseEntity.status(403).body("Access denied: Only Geschäftsführer can create votes");
-        }
-
-        vote.setCompany(user.getCompany());
-        voteRepository.save(vote);
-        return ResponseEntity.ok("Vote created successfully");
+    if (!"2".equals(user.getRole())) {
+        return ResponseEntity.status(403).body("Access denied: Only Geschäftsführer can create votes");
     }
+
+    if (vote.getEndTime().isBefore(vote.getStartTime())) {
+        return ResponseEntity.badRequest().body("End time cannot be before start time");
+    }
+
+    vote.setCompany(user.getCompany()); // Sicherheit: company nicht aus dem Body nehmen
+    voteRepository.save(vote);
+
+    return ResponseEntity.ok("Vote created successfully");
+}
 
     @PostMapping("/{voteId}/submit")
 public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String token, @PathVariable Long voteId, @RequestBody String result) {
