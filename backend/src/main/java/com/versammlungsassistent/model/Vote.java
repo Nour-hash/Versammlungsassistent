@@ -1,6 +1,9 @@
 package com.versammlungsassistent.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.versammlungsassistent.model.VoteResult;
+
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -20,10 +23,17 @@ public class Vote {
     @JsonBackReference
     private Company company;
 
-    @ElementCollection
-    @CollectionTable(name = "vote_results", joinColumns = @JoinColumn(name = "vote_id"))
-    @Column(name = "result")
-    private List<String> results; // List of votes (e.g., "yes", "no")
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference    
+    private List<VoteResult> results;
+    
+    public List<VoteResult> getResults() {
+        return results;
+    }
+    
+    public void setResults(List<VoteResult> results) {
+        this.results = results;
+    }
 
     public Long getId() {
         return id;
@@ -49,11 +59,5 @@ public class Vote {
         this.company = company;
     }
 
-    public List<String> getResults() {
-        return results;
-    }
-
-    public void setResults(List<String> results) {
-        this.results = results;
-    }
+   
 }

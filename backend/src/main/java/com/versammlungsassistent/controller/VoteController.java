@@ -2,6 +2,7 @@ package com.versammlungsassistent.controller;
 
 import com.versammlungsassistent.model.User;
 import com.versammlungsassistent.model.Vote;
+import com.versammlungsassistent.model.VoteResult;
 import com.versammlungsassistent.repository.VoteRepository;
 import com.versammlungsassistent.service.UserService;
 import com.versammlungsassistent.util.JwtUtil;
@@ -39,20 +40,26 @@ public class VoteController {
     }
 
     @PostMapping("/{voteId}/submit")
-    public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String token, @PathVariable Long voteId, @RequestBody String result) {
-        String email = jwtUtil.extractUsername(token.substring(7));
-        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String token, @PathVariable Long voteId, @RequestBody String result) {
+    String email = jwtUtil.extractUsername(token.substring(7));
+    User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Vote vote = voteRepository.findById(voteId).orElseThrow(() -> new RuntimeException("Vote not found"));
+    Vote vote = voteRepository.findById(voteId).orElseThrow(() -> new RuntimeException("Vote not found"));
 
-        if (!vote.getCompany().equals(user.getCompany())) {
-            return ResponseEntity.status(403).body("Access denied: You can only vote in your company");
-        }
-
-        vote.getResults().add(result);
-        voteRepository.save(vote);
-        return ResponseEntity.ok("Vote submitted successfully");
+    if (!vote.getCompany().equals(user.getCompany())) {
+        return ResponseEntity.status(403).body("Access denied: You can only vote in your company");
     }
+
+    VoteResult voteResult = new VoteResult();
+    voteResult.setResult(result);
+    voteResult.setUserId(user.getId());
+    voteResult.setVote(vote);
+
+    vote.getResults().add(voteResult);
+    voteRepository.save(vote);
+
+    return ResponseEntity.ok("Vote submitted successfully");
+}
 
     @GetMapping("/company")
     public ResponseEntity<List<Vote>> getVotesForCompany(@RequestHeader("Authorization") String token) {
@@ -62,4 +69,14 @@ public class VoteController {
         List<Vote> votes = voteRepository.findByCompanyId(user.getCompany().getId());
         return ResponseEntity.ok(votes);
     }
+
+
+    @GetMapping("available")
+    public List<Vote> getVotesNotYetVotedByUser(@RequestHeader("Authorization") String token) {
+    Long userId = jwtUtil.extractUserId(token); // oder getUser().getId()
+    Long companyId = jwtUtil.extractCompanyId(token); // falls Company im User geladen ist
+
+    return voteRepository.findVotesNotYetVotedByUserAndCompany(userId, companyId);
+}
+    
 }
