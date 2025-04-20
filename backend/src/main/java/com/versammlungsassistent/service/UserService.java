@@ -7,6 +7,7 @@ import com.versammlungsassistent.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +25,10 @@ public class UserService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public List<User> getShareholdersByCompany(String companyName) {
+        return userRepository.findByCompany_NameAndRole(companyName, "1"); // 1 = Gesellschafter
     }
 
     public User saveUser(String email, String rawPassword, String role, String companyName, Integer shares) {
