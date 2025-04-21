@@ -37,7 +37,6 @@ function LoginPage() {
         // Entferne den Präfix "JWT Token: " und speichere den Token in localStorage
         const token = data.replace("JWT Token: ", "").trim();
         localStorage.setItem("jwt", token);
-        console.log("🚀 Token gespeichert:", token);
         // Beispielhafte Navigation (anpassen, wie benötigt)
         navigate("/home");
       } else {

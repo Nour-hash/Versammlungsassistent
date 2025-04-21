@@ -35,7 +35,6 @@ const InvitePage = () => {
             const rawToken = localStorage.getItem("jwt");
             const token = rawToken?.replace("JWT Token: ", "").trim();
 
-            console.log("👉 JWT im Header:", token);
             try {
                 const res = await fetch(`${backendUrl}/api/users/shareholders`, {
                     headers: {
