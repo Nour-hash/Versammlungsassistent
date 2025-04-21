@@ -15,7 +15,7 @@ function LoginPage() {
   // --- Register States ---
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [regRole, setRegRole] = useState(1); // 1 = Gesellschafter, 2 = Geschäftsführer
+  const [regRole, setRegRole] = useState(2); // 1 = Gesellschafter, 2 = Geschäftsführer
   const [regCompanyName, setRegCompanyName] = useState("");
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState("");
