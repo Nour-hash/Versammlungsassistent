@@ -87,6 +87,12 @@ function VotePage() {
             <div>
                 <h1>Vote Page</h1>
                 <h2>{currentVote.topic}</h2>
+                {currentVote.description && (
+    <div style={{ marginBottom: "1rem" }}>
+        <strong>Beschreibung:</strong>
+        <p>{currentVote.description}</p>
+    </div>
+)}
                 <div>
                     <button onClick={() => setSelectedOption("ja")}>Ja</button>
                     <button onClick={() => setSelectedOption("nein")}>Nein</button>

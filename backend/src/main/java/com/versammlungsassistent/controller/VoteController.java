@@ -104,12 +104,12 @@ public ResponseEntity<Map<String, Long>> getVoteResultsSummary(@PathVariable Lon
                 Collectors.counting()
             ));
 
-            /* 
+             
     // Sicherstellen, dass alle drei Kategorien da sind, auch wenn leer
     resultSummary.putIfAbsent("ja", 0L);
     resultSummary.putIfAbsent("nein", 0L);
     resultSummary.putIfAbsent("enthalten", 0L);
-    */
+    
 
     return ResponseEntity.ok(resultSummary);
 }

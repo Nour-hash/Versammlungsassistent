@@ -18,6 +18,10 @@ public class Vote {
     @Column(nullable = false)
     private String topic;
 
+    @Column(columnDefinition = "TEXT")
+private String description;
+
+
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference
@@ -57,4 +61,7 @@ public class Vote {
     public LocalDateTime getEndTime() { return endTime; }
 
     public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description;}
 }
