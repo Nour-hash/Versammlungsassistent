@@ -70,6 +70,7 @@ public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String 
 
     @GetMapping("/company")
     public ResponseEntity<List<Vote>> getVotesForCompany(@RequestHeader("Authorization") String token) {
+        System.out.println("TOKEN: [" + token + "]");
         String email = jwtUtil.extractUsername(token.substring(7));
         User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -78,9 +79,14 @@ public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String 
     }
 
 
-    @GetMapping("available")
+    @GetMapping("/available")
     public List<Vote> getVotesNotYetVotedByUser(@RequestHeader("Authorization") String token) {
-    Long userId = jwtUtil.extractUserId(token); // oder getUser().getId()
+        System.out.println("TOKEN: [" + token + "]");
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7); // 🔪 entferne "Bearer "
+            System.out.println("needs trimming");
+        }
+        Long userId = jwtUtil.extractUserId(token); // oder getUser().getId()
     Long companyId = jwtUtil.extractCompanyId(token); // falls Company im User geladen ist
 
     return voteRepository.findVotesNotYetVotedByUserAndCompany(userId, companyId);

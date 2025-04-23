@@ -13,7 +13,7 @@ function VotePage() {
             const token = localStorage.getItem("jwt");
             try {
                 const response = await fetch(`${backendUrl}/api/votes/available`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {
                     const data = await response.json();

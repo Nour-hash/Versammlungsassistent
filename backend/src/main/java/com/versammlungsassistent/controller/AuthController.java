@@ -114,8 +114,10 @@ public String login(@RequestBody LoginRequest request) {
 
         // ✅ JWT jetzt mit userId und companyId erstellen
         String jwt = jwtUtil.generateToken(email, role, userId, companyId);
+        
 
         System.out.println("Authentication successful for user: " + email + " with role: " + role);
+        System.out.println("Generated JWT: " + jwt);
         return "JWT Token: " + jwt;
 
     } catch (AuthenticationException e) {
