@@ -47,11 +47,13 @@ function VotePage() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    result: selectedOption
+                body: JSON.stringify(
+                    selectedOption
+
+                    //                    {result: selectedOption hübscher wäre es es so zu schicken} dazu brauch ich die klammern
                     // Optional: falls Backend explizit userId erwartet
                     // userId: currentUserId
-                }),
+                ),
             });
 
             const data = await response.text();

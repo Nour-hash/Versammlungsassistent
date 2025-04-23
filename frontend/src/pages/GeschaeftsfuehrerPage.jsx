@@ -25,6 +25,10 @@ function GeschFtsfHrerPage() {
         navigate("/create-vote");
     };
 
+    const goToVoteResultsPage = () => {
+        navigate("/vote-results");
+    };
+
     const toggleGesellschafterForm = () => {
         // Formular ein-/ausblenden und evtl. Reset der Felder
         setGesellschafterError("");
@@ -104,6 +108,11 @@ function GeschFtsfHrerPage() {
                     <div className="button-card">
                         <button className="home-button" onClick={goToCreateVotePage}>
                             Create a New Vote
+                        </button>
+                    </div>
+                    <div className="button-card">
+                        <button className="home-button" onClick={goToVoteResultsPage}>
+                            See Vote Results
                         </button>
                     </div>
                 </div>

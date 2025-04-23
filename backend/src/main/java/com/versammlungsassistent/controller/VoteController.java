@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/votes")
@@ -90,6 +92,26 @@ public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String 
     Long companyId = jwtUtil.extractCompanyId(token); // falls Company im User geladen ist
 
     return voteRepository.findVotesNotYetVotedByUserAndCompany(userId, companyId);
+}
+
+@GetMapping("/{voteId}/results")
+public ResponseEntity<Map<String, Long>> getVoteResultsSummary(@PathVariable Long voteId) {
+    Vote vote = voteRepository.findById(voteId).orElseThrow(() -> new RuntimeException("Vote not found"));
+
+    Map<String, Long> resultSummary = vote.getResults().stream()
+            .collect(Collectors.groupingBy(
+                r -> r.getResult().toLowerCase(),
+                Collectors.counting()
+            ));
+
+            /* 
+    // Sicherstellen, dass alle drei Kategorien da sind, auch wenn leer
+    resultSummary.putIfAbsent("ja", 0L);
+    resultSummary.putIfAbsent("nein", 0L);
+    resultSummary.putIfAbsent("enthalten", 0L);
+    */
+
+    return ResponseEntity.ok(resultSummary);
 }
     
 }
