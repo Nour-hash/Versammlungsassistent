@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import '../styles/InvitePage.css';
 import Sidebar from "../components/Sidebar";
+import AgendaSuggestions from "../pages/AgendaSuggestions";
+import "../styles/AgendaSuggestions.css";
 
-const genericAgendaOptions = [
-    "Eröffnung und Begrüßung",
-    "Jahresabschluss",
-    "Entlastung der Geschäftsführung",
-    "Wahl neuer Geschäftsführer",
-    "Bericht des Aufsichtsrats",
-    "Ausschüttung Dividende",
-    "Änderung Gesellschaftsvertrag",
-    "Genehmigung Investitionen",
-    "Personalplanung",
-    "Sonstiges"
+const richAgendaSuggestions = [
+    "Beschlussfassung über die Bestellung eines neuen Geschäftsführers – Vorschlag zur Bestellung von [Name, ggf. mit Titel] als Geschäftsführer der Gesellschaft mit Wirkung zum [Datum] gemäß § 15 GmbHG.",
+    "Beschlussfassung über die Änderung des Gesellschaftsvertrags betreffend die Dauer der Geschäftsführungsbestellung – Änderung von § [X] des Gesellschaftsvertrags dahingehend, dass die Geschäftsführer künftig auf 5 Jahre bestellt werden.",
+    "Genehmigung der Anschaffung von Maschinen/IT-Systemen/Mobiliar in Höhe von insgesamt bis zu EUR 50.000,00 im Geschäftsjahr 2025.",
+    "Feststellung der Beschlussfähigkeit und Einverständnis zu den Tagesordnungspunkten",
+    "Genehmigung des Jahresabschlusses für das Geschäftsjahr 2024 – Vorlage und Erläuterung durch die Geschäftsführung",
+    "Beschlussfassung über die Verwendung des Bilanzgewinns – Ausschüttung in Höhe von EUR 20’000 an die Gesellschafter",
+    "Entlastung der Geschäftsführung für das Geschäftsjahr 2024",
+    "Beschlussfassung über Einführung virtueller Gesellschafterversammlungen – Ergänzung von § 9 des Gesellschaftsvertrags"
 ];
 
 const InvitePage = () => {
@@ -22,16 +22,17 @@ const InvitePage = () => {
     const [location, setLocation] = useState("");
     const [participants, setParticipants] = useState([]);
     const [agenda, setAgenda] = useState([]);
+    const [agendaFiles, setAgendaFiles] = useState({});
     const [newAgendaPoint, setNewAgendaPoint] = useState("");
     const [availableUsers, setAvailableUsers] = useState([]);
     const [selectedParticipant, setSelectedParticipant] = useState("");
     const [message, setMessage] = useState("");
+    const [errors, setErrors] = useState({});
 
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         const fetchUsers = async () => {
-
             const rawToken = localStorage.getItem("jwt");
             const token = rawToken?.replace("JWT Token: ", "").trim();
 
@@ -42,18 +43,10 @@ const InvitePage = () => {
                     }
                 });
 
-
-                if (!res.ok) {
-                    throw new Error(`Fehler beim Laden: ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`Fehler beim Laden: ${res.status}`);
 
                 const data = await res.json();
-                if (Array.isArray(data)) {
-                    setAvailableUsers(data);
-                } else {
-                    setAvailableUsers([]);
-                    console.error("Unerwartete Antwort:", data);
-                }
+                setAvailableUsers(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error("Fehler beim Laden der Gesellschafter:", err);
                 setAvailableUsers([]);
@@ -61,7 +54,7 @@ const InvitePage = () => {
         };
 
         fetchUsers();
-    }, []);
+    }, [backendUrl]);
 
     const addAgendaPoint = () => {
         if (newAgendaPoint.trim() !== "") {
@@ -82,14 +75,25 @@ const InvitePage = () => {
     };
 
     const createInvitation = async () => {
+        // Reset message
+        setMessage("");
+
+        // 🔍 Validierung
+        if (!title.trim()) return setMessage("Bitte gib einen Titel ein.");
+        if (!dateTime) return setMessage("Bitte wähle Datum und Uhrzeit aus.");
+        if (!location.trim()) return setMessage("Bitte gib einen Ort oder Link an.");
+        if (participants.length === 0) return setMessage("Bitte füge mindestens einen Teilnehmer hinzu.");
+        if (agenda.length === 0) return setMessage("Bitte füge mindestens einen Tagesordnungspunkt hinzu.");
+
         const token = localStorage.getItem("jwt");
+
         const payload = {
             title,
             dateTime,
             meetingType: type,
             locationOrLink: location,
             participants,
-            agendaItems: agenda
+            agendaItems: agenda,
         };
 
         try {
@@ -101,12 +105,15 @@ const InvitePage = () => {
                 },
                 body: JSON.stringify(payload),
             });
+
             const data = await response.text();
             setMessage(data);
         } catch (error) {
+            console.error("Fehler beim Erstellen:", error);
             setMessage("Fehler beim Erstellen der Einladung");
         }
     };
+
 
     return (
         <div className="page-container">
@@ -119,12 +126,22 @@ const InvitePage = () => {
                 <form className="form" onSubmit={(e) => e.preventDefault()}>
                     <div className="field">
                         <label>Meetingtitel</label>
-                        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className={errors.title ? "error-input" : ""}
+                        />
                     </div>
 
                     <div className="field">
                         <label>Datum und Uhrzeit</label>
-                        <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} />
+                        <input
+                            type="datetime-local"
+                            value={dateTime}
+                            onChange={(e) => setDateTime(e.target.value)}
+                            className={errors.dateTime ? "error-input" : ""}
+                        />
                     </div>
 
                     <div className="field">
@@ -132,14 +149,15 @@ const InvitePage = () => {
                         <div className="radio-group">
                             {["Virtuell", "Hybrid", "Präsenz"].map((t) => (
                                 <label key={t}>
-                                    <input type="radio" name="type" value={t} checked={type === t} onChange={() => setType(t)} />
+                                    <input type="radio" name="type" value={t} checked={type === t}
+                                           onChange={() => setType(t)}/>
                                     {t}
                                 </label>
                             ))}
                         </div>
 
                         <label>Teilnehmer hinzufügen</label>
-                        <div style={{ display: "flex", gap: "10px" }}>
+                        <div style={{display: "flex", gap: "10px"}}>
                             <input
                                 list="users"
                                 value={selectedParticipant}
@@ -155,45 +173,76 @@ const InvitePage = () => {
                         </datalist>
                         <ul>
                             {participants.map((p, idx) => (
-                                <li key={idx}>{p}</li>
+                                <li key={idx}>
+                                    {p}
+                                    <button type="button" onClick={() => {
+                                        setParticipants(participants.filter((_, i) => i !== idx));
+                                    }} style={{marginLeft: "10px"}}>🗑️
+                                    </button>
+                                </li>
                             ))}
                         </ul>
+
                     </div>
 
                     <div className="field">
                         <label>Ort oder Konferenzlink</label>
-                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
+                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}/>
                     </div>
 
                     <div className="field">
                         <label>Tagesordnung</label>
                         <p className="info">
-                            Alle Punkte über die abgestimmt wird → Gesellschafter mit ≥10 % Stammkapital dürfen Punkte hinzufügen
+                            Alle Punkte über die abgestimmt wird → Gesellschafter mit ≥10 % Stammkapital dürfen Punkte
+                            hinzufügen
                         </p>
                         <ol className="agenda-list">
                             {agenda.map((item, index) => (
                                 <li key={index}>
                                     {item}
-                                    <button type="button" onClick={() => removeAgendaPoint(index)} style={{ marginLeft: "10px" }}>🗑️</button>
+                                    <button type="button" onClick={() => removeAgendaPoint(index)}
+                                            style={{marginLeft: "10px"}}>🗑️
+                                    </button>
+
+                                    <label style={{marginLeft: "10px", cursor: "pointer"}}>
+                                        📎 PDF
+                                        <input
+                                            type="file"
+                                            accept=".pdf"
+                                            style={{display: "none"}}
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setAgendaFiles(prev => ({...prev, [index]: file}));
+                                                }
+                                            }}
+                                        />
+                                    </label>
+
+                                    {agendaFiles[index] && (
+                                        <span style={{fontSize: "0.8rem", marginLeft: "5px", color: "#555"}}>
+          ({agendaFiles[index].name})
+        </span>
+                                    )}
                                 </li>
                             ))}
                         </ol>
 
-                        <div style={{ display: "flex", gap: "10px" }}>
+
+                        <div style={{display: "flex", gap: "10px", marginBottom: "10px"}}>
                             <input
                                 type="text"
-                                list="agendaOptions"
                                 placeholder="Tagesordnungspunkt"
                                 value={newAgendaPoint}
                                 onChange={(e) => setNewAgendaPoint(e.target.value)}
                             />
                             <button type="button" className="add-button" onClick={addAgendaPoint}>+</button>
                         </div>
-                        <datalist id="agendaOptions">
-                            {genericAgendaOptions.map((item, idx) => (
-                                <option key={idx} value={item} />
-                            ))}
-                        </datalist>
+
+                        <AgendaSuggestions
+                            suggestions={richAgendaSuggestions}
+                            onSelect={(text) => setNewAgendaPoint(text)}
+                        />
                     </div>
                 </form>
 

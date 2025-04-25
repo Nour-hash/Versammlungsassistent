@@ -31,4 +31,14 @@ public class MeetingService {
 
         return meetingRepository.save(m);
     }
+
+    public Meeting findById(Long id) {
+        return meetingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meeting nicht gefunden"));
+    }
+
+    public Meeting save(Meeting meeting) {
+        return meetingRepository.save(meeting);
+    }
+
 }

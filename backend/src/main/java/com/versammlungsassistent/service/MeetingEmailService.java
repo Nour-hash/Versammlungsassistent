@@ -26,6 +26,9 @@ public class MeetingEmailService {
                 "🧑‍💻 Typ: " + meeting.getMeetingType() + "\n" +
                 "📍 Ort / Link: " + meeting.getLocationOrLink() + "\n\n" +
                 "Tagesordnung:\n - " + String.join("\n - ", meeting.getAgendaItems()) + "\n\n" +
+                "👉 Um Tagesordnungspunkte hinzuzufügen:\n" +
+                "http://localhost:3000/meetings/" + meeting.getId() + "/agenda\n\n" +
                 "Mit freundlichen Grüßen,\nDie Geschäftsführung";
     }
+
 }
