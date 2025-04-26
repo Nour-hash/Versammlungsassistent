@@ -2,6 +2,7 @@ package com.versammlungsassistent.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,33 @@ public class Meeting {
 
     private String meetingType;
 
+
+    public String getResultsText() {
+        return resultsText;
+    }
+
+    public void setResultsText(String resultsText) {
+        this.resultsText = resultsText;
+    }
+
+    public LocalDateTime getResultsSentAt() {
+        return resultsSentAt;
+    }
+
+    public void setResultsSentAt(LocalDateTime resultsSentAt) {
+        this.resultsSentAt = resultsSentAt;
+    }
+
     private String locationOrLink;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String resultsText;
+
+    @ElementCollection
+    private List<String> challenges = new ArrayList<>();
+
+    private LocalDateTime resultsSentAt;
 
     @ElementCollection
     private List<String> participants; // E-Mail-Liste
@@ -91,5 +118,12 @@ public class Meeting {
     public void setCompany(Company company) {
         this.company = company;
     }
-// Getter & Setter
+
+    public List<String> getChallenges() {
+        return challenges;
+    }
+
+    public void setChallenges(List<String> challenges) {
+        this.challenges = challenges;
+    }
 }

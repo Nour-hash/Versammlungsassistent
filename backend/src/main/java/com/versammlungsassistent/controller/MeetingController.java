@@ -2,18 +2,21 @@ package com.versammlungsassistent.controller;
 
 import com.versammlungsassistent.dto.AgendaItemRequest;
 import com.versammlungsassistent.dto.MeetingRequest;
+import com.versammlungsassistent.dto.MeetingResultsRequest;
 import com.versammlungsassistent.model.Meeting;
 import com.versammlungsassistent.model.User;
 import com.versammlungsassistent.service.MeetingEmailService;
 import com.versammlungsassistent.service.MeetingService;
 import com.versammlungsassistent.service.UserService;
 import com.versammlungsassistent.util.JwtUtil;
+import com.versammlungsassistent.util.PdfGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -48,6 +51,11 @@ public class MeetingController {
             return ResponseEntity.status(403).body("Nur Geschäftsführer können Einladungen erstellen.");
         }
 
+        LocalDateTime meetingDate = LocalDateTime.parse(request.getDateTime());
+        if (meetingDate.isBefore(LocalDateTime.now().plusDays(7))) {
+            return ResponseEntity.badRequest().body("Das Meeting muss mindestens 7 Tage im Voraus geplant werden.");
+        }
+
         Meeting saved = meetingService.saveMeeting(request, initiator);
         meetingEmailService.sendInvitations(saved);
 
@@ -72,6 +80,11 @@ public class MeetingController {
         response.put("locationOrLink", meeting.getLocationOrLink());
         response.put("agendaItems", meeting.getAgendaItems());
         response.put("userShares", user.getShares() != null ? user.getShares() : 0);
+        response.put("challenges", meeting.getChallenges());
+
+        if (meeting.getResultsSentAt() != null) {
+            response.put("challengeDeadline", meeting.getResultsSentAt().plusDays(30));
+        }
 
         return ResponseEntity.ok(response);
     }
@@ -105,4 +118,118 @@ public class MeetingController {
 
         return ResponseEntity.ok(meeting);
     }
+
+    @PostMapping("/{id}/results")
+    public ResponseEntity<?> sendResults(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String token,
+            @RequestBody MeetingResultsRequest request
+    ) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+        Meeting meeting = meetingService.findById(id);
+
+        if (!meeting.getCompany().equals(user.getCompany()) || !"2".equals(user.getRole())) {
+            return ResponseEntity.status(403).body("Nicht berechtigt.");
+        }
+
+        meeting.setResultsText(request.getResultsText());
+        meeting.setResultsSentAt(LocalDateTime.now());
+        meetingService.save(meeting);
+
+        try {
+            byte[] pdf = PdfGenerator.generateResultsPdf(meeting.getTitle(), request.getResultsText());
+            meetingEmailService.sendResultsToParticipants(meeting, pdf);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Fehler beim Erstellen oder Versenden des PDFs.");
+        }
+
+        return ResponseEntity.ok("Beschlussergebnisse versendet.");
+    }
+
+
+    @GetMapping("/latest")
+    public ResponseEntity<?> getLatestMeetings(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+
+        List<Meeting> meetings = meetingService.findLatestMeetingsByCompany(user.getCompany().getId());
+
+        List<Map<String, Object>> response = meetings.stream().map(m -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", m.getId());
+            map.put("title", m.getTitle());
+            map.put("dateTime", m.getDateTime());
+            return map;
+        }).toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/my-latest")
+    public ResponseEntity<?> getMyLatestMeetings(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+
+        // Alle Meetings der Firma holen
+        List<Meeting> meetings = meetingService.findMeetingsByCompany(user.getCompany());
+
+        // Nur Meetings filtern, wo der Gesellschafter Teilnehmer war
+        List<Meeting> myMeetings = meetings.stream()
+                .filter(m -> m.getParticipants().contains(email))
+                .sorted((m1, m2) -> m2.getDateTime().compareTo(m1.getDateTime())) // Neueste zuerst
+                .limit(5)
+                .toList();
+
+        return ResponseEntity.ok(myMeetings);
+    }
+
+
+    @GetMapping("/check-yearly")
+    public ResponseEntity<?> checkYearlyMeeting(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+
+        boolean exists = meetingService.existsMeetingInCurrentYear(user.getCompany().getId());
+        if (exists) {
+            return ResponseEntity.ok("Generalversammlung vorhanden.");
+        } else {
+            return ResponseEntity.status(404).body("Dieses Jahr wurde noch keine Generalversammlung durchgeführt.");
+        }
+    }
+
+
+    @PostMapping("/{id}/challenge")
+    public ResponseEntity<?> challengeMeeting(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String token
+    ) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+
+        Meeting meeting = meetingService.findById(id);
+
+        if (!meeting.getCompany().equals(user.getCompany())) {
+            return ResponseEntity.status(403).body("Nicht berechtigt.");
+        }
+
+        if (!meeting.getParticipants().contains(user.getEmail())) {
+            return ResponseEntity.status(403).body("Nur Teilnehmer dürfen anfechten.");
+        }
+
+        if (meeting.getResultsSentAt() == null) {
+            return ResponseEntity.badRequest().body("Keine Beschlussergebnisse vorhanden.");
+        }
+
+        if (meeting.getResultsSentAt().plusMonths(1).isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Frist für Anfechtung ist abgelaufen.");
+        }
+
+        meeting.getChallenges().add(user.getEmail());
+        meetingService.save(meeting);
+
+        return ResponseEntity.ok("Anfechtung erfolgreich eingereicht.");
+    }
+
+
 }

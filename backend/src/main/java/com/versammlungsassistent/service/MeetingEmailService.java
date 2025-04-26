@@ -31,4 +31,17 @@ public class MeetingEmailService {
                 "Mit freundlichen Grüßen,\nDie Geschäftsführung";
     }
 
+    public void sendResultsToParticipants(Meeting meeting, byte[] pdfAttachment) {
+        for (String email : meeting.getParticipants()) {
+            String body = "Sehr geehrte Gesellschafter,\n\n"
+                    + "Hiermit senden wir Ihnen die Beschlussergebnisse zur Versammlung \"" + meeting.getTitle() + "\":\n\n"
+                    + meeting.getResultsText() + "\n\n"
+                    + "Mit freundlichen Grüßen,\nDie Geschäftsführung";
+
+            mailjet.sendEmailWithAttachment(email, "Beschlussergebnisse: " + meeting.getTitle(), body, pdfAttachment, "Ergebnisse.pdf");
+        }
+    }
+
+
+
 }

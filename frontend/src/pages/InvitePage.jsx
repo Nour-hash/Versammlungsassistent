@@ -75,25 +75,27 @@ const InvitePage = () => {
     };
 
     const createInvitation = async () => {
-        // Reset message
-        setMessage("");
+        if (!title || !dateTime || !location || participants.length === 0 || agenda.length === 0) {
+            setMessage("Bitte alle Felder ausfüllen und mindestens einen Teilnehmer sowie Tagesordnungspunkt hinzufügen.");
+            return;
+        }
 
-        // 🔍 Validierung
-        if (!title.trim()) return setMessage("Bitte gib einen Titel ein.");
-        if (!dateTime) return setMessage("Bitte wähle Datum und Uhrzeit aus.");
-        if (!location.trim()) return setMessage("Bitte gib einen Ort oder Link an.");
-        if (participants.length === 0) return setMessage("Bitte füge mindestens einen Teilnehmer hinzu.");
-        if (agenda.length === 0) return setMessage("Bitte füge mindestens einen Tagesordnungspunkt hinzu.");
+        const meetingDate = new Date(dateTime);
+        const now = new Date();
+        const diffDays = (meetingDate - now) / (1000 * 60 * 60 * 24);
+        if (diffDays < 7) {
+            setMessage("Das Meeting muss mindestens 7 Tage im Voraus geplant werden.");
+            return;
+        }
 
         const token = localStorage.getItem("jwt");
-
         const payload = {
             title,
             dateTime,
             meetingType: type,
             locationOrLink: location,
             participants,
-            agendaItems: agenda,
+            agendaItems: agenda
         };
 
         try {
@@ -109,10 +111,10 @@ const InvitePage = () => {
             const data = await response.text();
             setMessage(data);
         } catch (error) {
-            console.error("Fehler beim Erstellen:", error);
             setMessage("Fehler beim Erstellen der Einladung");
         }
     };
+
 
 
     return (
