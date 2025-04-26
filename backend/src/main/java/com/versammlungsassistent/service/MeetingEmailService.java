@@ -26,6 +26,22 @@ public class MeetingEmailService {
                 "🧑‍💻 Typ: " + meeting.getMeetingType() + "\n" +
                 "📍 Ort / Link: " + meeting.getLocationOrLink() + "\n\n" +
                 "Tagesordnung:\n - " + String.join("\n - ", meeting.getAgendaItems()) + "\n\n" +
+                "👉 Um Tagesordnungspunkte hinzuzufügen:\n" +
+                "http://localhost:3000/meetings/" + meeting.getId() + "/agenda\n\n" +
                 "Mit freundlichen Grüßen,\nDie Geschäftsführung";
     }
+
+    public void sendResultsToParticipants(Meeting meeting, byte[] pdfAttachment) {
+        for (String email : meeting.getParticipants()) {
+            String body = "Sehr geehrte Gesellschafter,\n\n"
+                    + "Hiermit senden wir Ihnen die Beschlussergebnisse zur Versammlung \"" + meeting.getTitle() + "\":\n\n"
+                    + meeting.getResultsText() + "\n\n"
+                    + "Mit freundlichen Grüßen,\nDie Geschäftsführung";
+
+            mailjet.sendEmailWithAttachment(email, "Beschlussergebnisse: " + meeting.getTitle(), body, pdfAttachment, "Ergebnisse.pdf");
+        }
+    }
+
+
+
 }

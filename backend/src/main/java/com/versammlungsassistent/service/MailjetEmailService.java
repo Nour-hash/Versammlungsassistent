@@ -46,4 +46,41 @@ public class MailjetEmailService {
         System.out.println("📨 Mailjet Response: " + response.getStatusCode());
         System.out.println("🧾 Body: " + response.getBody());
     }
+
+    public void sendEmailWithAttachment(String to, String subject, String messageBody, byte[] attachment, String filename) {
+        String url = "https://api.mailjet.com/v3.1/send";
+
+        Map<String, Object> attachmentData = Map.of(
+                "ContentType", "application/pdf",
+                "Filename", filename,
+                "Base64Content", Base64.getEncoder().encodeToString(attachment)
+        );
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("From", Map.of(
+                "Email", "nour.nassar@stud.fh-campuswien.ac.at",
+                "Name", "Versammlungsassistent"
+        ));
+        message.put("To", List.of(Map.of(
+                "Email", to,
+                "Name", to.split("@")[0]
+        )));
+        message.put("Subject", subject);
+        message.put("TextPart", messageBody);
+        message.put("Attachments", List.of(attachmentData));
+
+        Map<String, Object> requestBody = Map.of("Messages", List.of(message));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(publicKey, privateKey);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+        System.out.println("📨 Mailjet Response: " + response.getStatusCode());
+        System.out.println("🧾 Body: " + response.getBody());
+    }
+
 }
