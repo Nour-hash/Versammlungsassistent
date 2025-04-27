@@ -10,7 +10,7 @@ import GeschFtsfHrerPage from "./pages/GeschaeftsfuehrerPage";
 import LoginPage from "./pages/LoginPage"; // Import the VotingSessionPage component
 import AgendaEditPage from "./pages/AgendaEditPage";
 import SendResultsPage from "./pages/SendResultsPage";
-import VoteResultsPage from "./pages/VoteResultsPage"; // Import the VoteResultsPage component
+import VoteResultsContent from "./components/VoteResultsContent"; // Import the VoteResultsContent component
 
 function App() {
     return (
@@ -21,7 +21,7 @@ function App() {
                 <Route path="/invite" element={<InvitePage/>}/> {/* Add invite route */}
                 <Route path="/votes" element={<VotePage/>}/> {/* Add vote route */}
                 <Route path="/create-vote" element={<CreateVotePage/>}/> {/* Add create vote route */}
-                <Route path="/vote-results" element={<VoteResultsPage/>}/> {/* Add vote results route */}
+                <Route path="/vote-results" element={<VoteResultsContent/>}/> {/* Add vote results route */}
                 <Route path="/home" element={<GeschFtsfHrerPage/>}/>
                 <Route path="/meetings/:id/agenda" element={<AgendaEditPage/>} />
                 <Route path="/meetings/:id/results" element={<SendResultsPage />} />

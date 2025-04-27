@@ -1,5 +1,6 @@
 package com.versammlungsassistent.controller;
 
+import com.versammlungsassistent.service.EmailVerificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,12 +21,14 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationService evService;  // neu
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder, EmailVerificationService evService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.evService = evService;
     }
 
     @PostMapping("/register")
@@ -79,7 +82,6 @@ public class AuthController {
         return ResponseEntity.ok("Gesellschafter erfolgreich registriert");
     }
 
-
     @PostMapping("/create-invitation")
     public ResponseEntity<String> createInvitation(@RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractUsername(token.substring(7));
@@ -94,38 +96,63 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-public String login(@RequestBody LoginRequest request) {
-    System.out.println("Login request received for email: " + request.getEmail());
-    try {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        System.out.println("Login request received for email: " + request.getEmail());
+        try {
+            // 1) Credentials prüfen
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(), request.getPassword()
+                    )
+            );
 
-        String email = authentication.getName();
+            // 2) User‐Infos laden (um bei verify‐Code später JWT zu erstellen)
+            String email = authentication.getName();
+            User user = userService.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            Long userId = user.getId();
+            Long companyId = user.getCompany().getId();
+            String role = user.getRole();
+            System.err.println(
+                    "Authenticated user – email: " + email +
+                            ", ID: " + userId +
+                            ", companyID: " + companyId +
+                            ", role: " + role
+            );
 
-        // 🔍 Hol dir den User (damit du userId und companyId bekommst)
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            // 3) 6-stelligen Code erzeugen und per Mail versenden
+            evService.generateAndSendCode(email);
 
-        String role = user.getRole();
-        Long userId = user.getId();
-        Long companyId = user.getCompany().getId();
-        System.err.println("neuer user mit User ID: " + userId + ", Company ID: " + companyId);
-
-        // ✅ JWT jetzt mit userId und companyId erstellen
-        String jwt = jwtUtil.generateToken(email, role, userId, companyId);
-        
-
-        System.out.println("Authentication successful for user: " + email + " with role: " + role);
-        System.out.println("Generated JWT: " + jwt);
-        return "JWT Token: " + jwt;
-
-    } catch (AuthenticationException e) {
-        System.err.println("Authentication failed: " + e.getMessage());
-        return "Authentication failed: " + e.getMessage();
+            // 4) Response: Code wurde versandt
+            return ResponseEntity
+                    .ok("Code versandt an " + email);
+        } catch (AuthenticationException e) {
+            System.err.println("Authentication failed: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Authentication failed: " + e.getMessage());
+        }
     }
-}
 
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequest req) {
+        if (!evService.verifyCode(req.getEmail(), req.getCode())) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Ungültiger Code");
+        }
+        // User & JWT erstellen
+        User user = userService.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String jwt = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole(),
+                user.getId(),
+                user.getCompany().getId()
+        );
+        return ResponseEntity.ok(jwt);
+    }
 
     // DTO für den Request an den neuen Endpunkt
     public static class GesellschafterRequest {
@@ -229,5 +256,33 @@ public String login(@RequestBody LoginRequest request) {
             this.password = password;
         }
     }
+
+    // DTO für Code-Verifikation
+    // direkt unterhalb aller Endpoints in AuthController
+    public static class VerifyCodeRequest {
+        private String email;
+        private String code;
+
+        // Leer-Konstruktor (wichtig für Jackson)
+        public VerifyCodeRequest() {
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+    }
+
 
 }

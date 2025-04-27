@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import "../styles/GeschaeftsfuehrerPage.css";
 import Sidebar from "../components/Sidebar";
+import VoteResultsContent from "../components/VoteResultsContent";
 
 function GeschFtsfHrerPage() {
     const navigate = useNavigate();
@@ -18,13 +19,15 @@ function GeschFtsfHrerPage() {
     const [gesellschafterError, setGesellschafterError] = useState("");
     const [loadingGesellschafter, setLoadingGesellschafter] = useState(false);
     const [noMeetingWarning, setNoMeetingWarning] = useState(false);
+    const [showVoteModal, setShowVoteModal] = useState(false);
+
 
     const fetchMeetings = async () => {
         const token = localStorage.getItem("jwt");
 
         try {
             const res = await fetch(`${backendUrl}/api/meetings/latest`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {Authorization: `Bearer ${token}`}
             });
 
             if (res.ok) {
@@ -45,7 +48,7 @@ function GeschFtsfHrerPage() {
             const token = localStorage.getItem("jwt");
             try {
                 const res = await fetch(`${backendUrl}/api/meetings/check-yearly`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {Authorization: `Bearer ${token}`}
                 });
                 if (!res.ok) {
                     setNoMeetingWarning(true);
@@ -66,10 +69,6 @@ function GeschFtsfHrerPage() {
 
     const goToCreateVotePage = () => {
         navigate("/create-vote");
-    };
-
-    const goToVoteResultsPage = () => {
-        navigate("/vote-results");
     };
 
     const handleGoToAgenda = (id) => {
@@ -134,7 +133,7 @@ function GeschFtsfHrerPage() {
 
     return (
         <div className="page-container">
-            <Sidebar activePage="home" />
+            <Sidebar activePage="home"/>
             {noMeetingWarning && (
                 <div className="warning-box">
                     ⚠️ Achtung: Es wurde noch keine Generalversammlung für {new Date().getFullYear()} durchgeführt!
@@ -143,30 +142,27 @@ function GeschFtsfHrerPage() {
 
             <div className="main-content">
                 <div className="welcome-container">
-                    <h1>Willkommen auf der Startseite</h1>
+                    <h1>Willkommen bei AssemBly</h1>
                     <p>Sie haben sich erfolgreich angemeldet und Ihre GmbH wurde bestätigt.</p>
                 </div>
 
-                <div className="buttons-grid">
-                    <div className="button-card">
-                        <button className="home-button" onClick={goToInvitePage}>
-                            Einladung erstellen
-                        </button>
+                <div className="action-section">
+                    <div className="welcome-container buttons-grid">
+                        <div className="button-card" onClick={goToInvitePage}>
+                            <span className="card-label">Einladung erstellen</span>
+                            <button className="card-action-button">+</button>
+                        </div>
+                        <div className="button-card" onClick={toggleGesellschafterForm}>
+                            <span className="card-label">Gesellschafter hinzufügen</span>
+                            <button className="card-action-button">+</button>
+                        </div>
+                        <div className="button-card" onClick={goToCreateVotePage}>
+                            <span className="card-label">Neue Abstimmung erstellen</span>
+                            <button className="card-action-button">+</button>
+                        </div>
                     </div>
-                    <div className="button-card">
-                        <button className="home-button" onClick={toggleGesellschafterForm}>
-                            Gesellschafter hinzufügen
-                        </button>
-                    </div>
-                    <div className="button-card">
-                        <button className="home-button" onClick={goToCreateVotePage}>
-                            Create a New Vote
-                        </button>
-                    </div>
-                    <div className="button-card">
-                        <button className="home-button" onClick={goToVoteResultsPage}>
-                            See Vote Results
-                        </button>
+                    <div className="welcome-container info-container">
+                        <VoteResultsContent/>
                     </div>
                 </div>
 
@@ -245,10 +241,25 @@ function GeschFtsfHrerPage() {
                     </div>
                 )}
 
-                <div className="info-container">
-                    <h2>Überblick der Stimmrechte</h2>
-                    <p>Weitere Daten, Statistiken oder Hinweise können hier dargestellt werden.</p>
-                </div>
+                {showVoteModal && (
+                    <div
+                        className="modal-overlay"
+                        onClick={() => setShowVoteModal(false)}
+                    >
+                        <div
+                            className="modal-content vote-modal"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <button
+                                className="modal-close-button"
+                                onClick={() => setShowVoteModal(false)}
+                            >
+                                ×
+                            </button>
+                            <VoteResultsContent/>
+                        </div>
+                    </div>
+                )}
 
                 {/* NEUER TEIL - Meetings ganz unten */}
                 <div className="meetings-section">
@@ -262,8 +273,11 @@ function GeschFtsfHrerPage() {
                                     <h3>{meeting.title}</h3>
                                     <p>{new Date(meeting.dateTime).toLocaleString()}</p>
                                     <div className="meeting-buttons">
-                                        <button onClick={() => handleGoToAgenda(meeting.id)}>Tagesordnung bearbeiten</button>
-                                        <button onClick={() => handleGoToResults(meeting.id)}>Beschlussergebnisse senden</button>
+                                        <button onClick={() => handleGoToAgenda(meeting.id)}>Tagesordnung bearbeiten
+                                        </button>
+                                        <button onClick={() => handleGoToResults(meeting.id)}>Beschlussergebnisse
+                                            senden
+                                        </button>
                                     </div>
 
                                     {/* Challenges anzeigen */}

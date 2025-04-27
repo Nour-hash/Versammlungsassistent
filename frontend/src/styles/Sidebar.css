@@ -32,3 +32,12 @@
 .sidebar-item.active {
   background-color: #34495e;
 }
+
+.sidebar-logo {
+  display: block;        /* Nimmt nur so viel Platz ein wie das Bild */
+  margin: 1.5rem auto;   /* Oben/Unten Abstand und zentriert */
+  width: 120px;          /* Breite anpassen nach Bedarf */
+  height: auto;
+  border-radius: 12px;   /* Rundungen; für perfekt kreisrund: 50% */
+  object-fit: contain;   /* Verpixelung verhindern */
+}

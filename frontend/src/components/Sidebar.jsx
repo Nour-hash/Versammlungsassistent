@@ -1,22 +1,23 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
+import logo from "../assets/logo.png"
 
 const Sidebar = ({ activePage}) => {
   const navigate = useNavigate();
   return (
     <div className="sidebar">
-      <div className="sidebar-title">Gesellschafter-Assistent</div>
+      <img src={logo} alt="AssemBly Logo" className="sidebar-logo" />
       <ul className="sidebar-menu">
         <li
           className={`sidebar-item ${activePage === "home" ? "active" : ""}`}
           onClick={() => navigate("/home")}
         >
-          Home
+          Startseite
         </li>
         <li className="sidebar-item"
             onClick={() => navigate("/")}>
-          Logout
+          Ausloggen
         </li>
       </ul>
     </div>

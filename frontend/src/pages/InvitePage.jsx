@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import '../styles/InvitePage.css';
 import Sidebar from "../components/Sidebar";
 import AgendaSuggestions from "../pages/AgendaSuggestions";
@@ -116,10 +116,9 @@ const InvitePage = () => {
     };
 
 
-
     return (
         <div className="page-container">
-            <Sidebar activePage="home" />
+            <Sidebar activePage="home"/>
             <div className="meeting-wrapper">
                 <button className="top-button" onClick={createInvitation}>Einladung erstellen</button>
 
