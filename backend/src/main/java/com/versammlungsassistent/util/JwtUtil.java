@@ -16,9 +16,11 @@ public class JwtUtil {
 
     private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Sicherer Schlüssel
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long userId, Long companyId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role); // Add role to the token
+        claims.put("role", role);
+        claims.put("userId", userId);
+        claims.put("companyId", companyId);
         return createToken(claims, username);
     }
 
@@ -31,6 +33,15 @@ public class JwtUtil {
             .signWith(SECRET_KEY) // Verwenden Sie den sicheren Schlüssel
             .compact();
     }
+
+    public Long extractUserId(String token) {
+        return extractClaims(token).get("userId", Long.class);
+    }
+
+    public Long extractCompanyId(String token) {
+        return extractClaims(token).get("companyId", Long.class);
+    }
+    
 
     public String extractUsername(String token) {
         return extractClaims(token).getSubject();

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 
 function VotePage() {
@@ -12,8 +12,8 @@ function VotePage() {
         const fetchVotes = async () => {
             const token = localStorage.getItem("jwt");
             try {
-                const response = await fetch(`${backendUrl}/api/votes/company`, {
-                    headers: {Authorization: `Bearer ${token}`},
+                const response = await fetch(`${backendUrl}/api/votes/available`, {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -39,6 +39,7 @@ function VotePage() {
 
         const token = localStorage.getItem("jwt");
         const currentVote = votes[currentVoteIndex];
+
         try {
             const response = await fetch(`${backendUrl}/api/votes/${currentVote.id}/submit`, {
                 method: "POST",
@@ -46,18 +47,24 @@ function VotePage() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(selectedOption),
+                body: JSON.stringify(
+                    selectedOption
+
+                    //                    {result: selectedOption hübscher wäre es es so zu schicken} dazu brauch ich die klammern
+                    // Optional: falls Backend explizit userId erwartet
+                    // userId: currentUserId
+                ),
             });
+
             const data = await response.text();
             if (response.ok) {
                 setMessage("Vote submitted successfully!");
-                setSelectedOption(null); // Reset the selected option
-                // Move to the next vote
+                setSelectedOption(null);
                 if (currentVoteIndex + 1 < votes.length) {
                     setCurrentVoteIndex(currentVoteIndex + 1);
                 } else {
                     setMessage("All votes completed!");
-                    setVotes([]); // Clear votes when all are completed
+                    setVotes([]);
                 }
             } else {
                 setMessage(data);
@@ -76,10 +83,16 @@ function VotePage() {
 
     return (
         <div className="page-container">
-            <Sidebar activePage="home"/>
+            <Sidebar activePage="home" />
             <div>
                 <h1>Vote Page</h1>
                 <h2>{currentVote.topic}</h2>
+                {currentVote.description && (
+    <div style={{ marginBottom: "1rem" }}>
+        <strong>Beschreibung:</strong>
+        <p>{currentVote.description}</p>
+    </div>
+)}
                 <div>
                     <button onClick={() => setSelectedOption("ja")}>Ja</button>
                     <button onClick={() => setSelectedOption("nein")}>Nein</button>
@@ -94,7 +107,6 @@ function VotePage() {
                 {message && <p>{message}</p>}
             </div>
         </div>
-
     );
 }
 

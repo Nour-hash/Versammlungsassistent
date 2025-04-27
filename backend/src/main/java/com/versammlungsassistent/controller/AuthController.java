@@ -94,24 +94,38 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        System.out.println("Login request received for email: " + request.getEmail());
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-            String email = authentication.getName();
-            String role = userService.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"))
-                    .getRole(); // Get the user's role
-            String jwt = jwtUtil.generateToken(email, role);
-            System.out.println("Authentication successful for user: " + email + " with role: " + role);
-            return "JWT Token: " + jwt;
-        } catch (AuthenticationException e) {
-            System.err.println("Authentication failed: " + e.getMessage());
-            return "Authentication failed: " + e.getMessage();
-        }
+public String login(@RequestBody LoginRequest request) {
+    System.out.println("Login request received for email: " + request.getEmail());
+    try {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        String email = authentication.getName();
+
+        // 🔍 Hol dir den User (damit du userId und companyId bekommst)
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String role = user.getRole();
+        Long userId = user.getId();
+        Long companyId = user.getCompany().getId();
+        System.err.println("neuer user mit User ID: " + userId + ", Company ID: " + companyId);
+
+        // ✅ JWT jetzt mit userId und companyId erstellen
+        String jwt = jwtUtil.generateToken(email, role, userId, companyId);
+        
+
+        System.out.println("Authentication successful for user: " + email + " with role: " + role);
+        System.out.println("Generated JWT: " + jwt);
+        return "JWT Token: " + jwt;
+
+    } catch (AuthenticationException e) {
+        System.err.println("Authentication failed: " + e.getMessage());
+        return "Authentication failed: " + e.getMessage();
     }
+}
+
 
     // DTO für den Request an den neuen Endpunkt
     public static class GesellschafterRequest {
