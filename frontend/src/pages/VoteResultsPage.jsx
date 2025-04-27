@@ -8,6 +8,7 @@ function VoteResultsPage() {
     const [votes, setVotes] = useState([]);
     const [selectedVoteId, setSelectedVoteId] = useState(null);
     const [resultData, setResultData] = useState(null);
+    const [voteSummary, setVoteSummary] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
@@ -39,11 +40,14 @@ function VoteResultsPage() {
             });
             if (response.ok) {
                 const data = await response.json();
-                const formattedData = Object.keys(data).map((key) => ({
+                // Für das Chart: Stimmen je Antwort
+                const chartData = Object.keys(data.stimmen).map((key) => ({
                     name: key.charAt(0).toUpperCase() + key.slice(1),
-                    count: data[key],
+                    Stimmen: data.stimmen[key],
+                    Kapital: data.kapital[key],
                 }));
-                setResultData(formattedData);
+                setResultData(chartData);
+                setVoteSummary(data);
                 setSelectedVoteId(voteId);
             } else {
                 const text = await response.text();
@@ -74,7 +78,7 @@ function VoteResultsPage() {
                     ))}
                 </ul>
 
-                {resultData && (
+                {resultData && voteSummary && (
                     <div style={{ marginTop: "2rem" }}>
                         <h2>Ergebnisse</h2>
                         <ResponsiveContainer width="100%" height={300}>
@@ -83,9 +87,16 @@ function VoteResultsPage() {
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                <Bar dataKey="count" fill="#8884d8" />
+                                <Bar dataKey="Stimmen" fill="#8884d8" />
+                                <Bar dataKey="Kapital" fill="#82ca9d" />
                             </BarChart>
                         </ResponsiveContainer>
+                        <div style={{marginTop: 24, fontSize: 18}}>
+                            <b>Regel:</b> {voteSummary.regelText}<br/>
+                            <b>Kapital anwesend:</b> {voteSummary.kapitalAnwesend}<br/>
+                            <b>Gesamt Stimmen:</b> {voteSummary.gesamtStimmen}<br/>
+                            <b>Beschluss:</b> {voteSummary.angenommen ? "Angenommen ✅" : "Abgelehnt ❌"}
+                        </div>
                     </div>
                 )}
             </div>

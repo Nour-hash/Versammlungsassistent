@@ -25,8 +25,11 @@ public class User {
     @JsonBackReference
     private Company company;
 
-    @Column(nullable = true) // Nullable because only "Gesellschafter" have shares
-    private Integer shares;
+    @Column(nullable = true) // Nullable because only "Gesellschafter" have stimmen/kapital
+    private Integer stimmen;
+
+    @Column(nullable = true) // Nullable because only "Gesellschafter" have kapital
+    private Double kapital;
 
     public Long getId() {
         return id;
@@ -68,11 +71,19 @@ public class User {
         this.company = company;
     }
 
-    public Integer getShares() {
-        return shares;
+    public Integer getStimmen() {
+        return stimmen;
     }
 
-    public void setShares(Integer shares) {
-        this.shares = shares;
+    public void setStimmen(Integer stimmen) {
+        this.stimmen = stimmen;
+    }
+
+    public Double getKapital() {
+        return kapital;
+    }
+
+    public void setKapital(Double kapital) {
+        this.kapital = kapital;
     }
 }

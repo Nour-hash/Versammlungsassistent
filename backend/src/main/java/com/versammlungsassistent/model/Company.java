@@ -15,6 +15,9 @@ public class Company {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(nullable = false)
+    private Double stammkapital = 0.0;
+
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<User> users;
@@ -37,6 +40,14 @@ public class Company {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getStammkapital() {
+        return stammkapital;
+    }
+
+    public void setStammkapital(Double stammkapital) {
+        this.stammkapital = stammkapital;
     }
 
     public List<User> getUsers() {

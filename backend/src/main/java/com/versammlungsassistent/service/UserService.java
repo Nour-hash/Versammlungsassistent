@@ -26,7 +26,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User saveUser(String email, String rawPassword, String role, String companyName, Integer shares) {
+    public User saveUser(String email, String rawPassword, String role, String companyName, Integer stimmen, Double kapital) {
         if (companyName == null || companyName.trim().isEmpty()) {
             throw new IllegalArgumentException("Company name cannot be null or empty");
         }
@@ -45,7 +45,14 @@ public class UserService {
         user.setCompany(company);
 
         if ("1".equals(role)) { // If the user is a Gesellschafter
-            user.setShares(shares);
+            user.setStimmen(stimmen);
+            user.setKapital(kapital);
+            // Add kapital to company's stammkapital
+            if (kapital != null && kapital > 0) {
+                Double currentStammkapital = company.getStammkapital() != null ? company.getStammkapital() : 0.0;
+                company.setStammkapital(currentStammkapital + kapital);
+                companyRepository.save(company);
+            }
         }
 
         return userRepository.save(user);
