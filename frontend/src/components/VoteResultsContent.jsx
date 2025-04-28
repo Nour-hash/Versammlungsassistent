@@ -1,13 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    ResponsiveContainer,
-    CartesianGrid
-} from "recharts";
+import Sidebar from "../components/Sidebar";
+import {BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid} from "recharts";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -18,7 +11,6 @@ function VoteResultsContent() {
     const [voteSummary, setVoteSummary] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
-
 
     useEffect(() => {
         const fetchVotes = async () => {
@@ -41,7 +33,7 @@ function VoteResultsContent() {
         fetchVotes();
     }, []);
 
-    const fetchVoteResults = async (voteId) => {
+    const fetchVoteResults = async (voteId, topic) => {
         const token = localStorage.getItem("jwt");
         try {
             const response = await fetch(`${backendUrl}/api/votes/${voteId}/results`, {
@@ -49,15 +41,15 @@ function VoteResultsContent() {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Für das Chart: Stimmen je Antwort
                 const chartData = Object.keys(data.stimmen).map((key) => ({
                     name: key.charAt(0).toUpperCase() + key.slice(1),
                     Stimmen: data.stimmen[key],
                     Kapital: data.kapital[key],
                 }));
                 setResultData(chartData);
-                setVoteSummary(data);
+                setVoteSummary({...data, topic});
                 setSelectedVoteId(voteId);
+                setIsModalVisible(true);
             } else {
                 const text = await response.text();
                 setErrorMessage(text);
@@ -69,16 +61,16 @@ function VoteResultsContent() {
     };
 
     return (
-        <div className="vote-results-content">
-            <h1>Abstimmungsergebnisse</h1>
-
+        <div className="vote-results-container">
             {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
-
             <h2>Abstimmungen:</h2>
-            <ul>
+            <ul className="vote-list">
                 {votes.map((vote) => (
-                    <li key={vote.id}>
-                        <button onClick={() => fetchVoteResults(vote.id)}>
+                    <li key={vote.id} style={{marginBottom: '0.5rem'}}>
+                        <button
+                            className="vote-item-button"
+                            onClick={() => fetchVoteResults(vote.id, vote.topic)}
+                        >
                             {vote.topic}
                         </button>
                     </li>
@@ -86,44 +78,32 @@ function VoteResultsContent() {
             </ul>
 
             {isModalVisible && (
-                <div
-                    className="modal-overlay"
-                    onClick={() => setIsModalVisible(false)}
-                >
-                    <div
-                        className="modal-content vote-modal"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            className="modal-close-button"
-                            onClick={() => setIsModalVisible(false)}
-                        >
+                <div className="modal-overlay" onClick={() => setIsModalVisible(false)}>
+                    <div className="modal-content vote-modal" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close-button" onClick={() => setIsModalVisible(false)}>
                             ×
                         </button>
-                        <h2>Ergebnisse:</h2>
-                        <div className="chart-container">
-                            {resultData && voteSummary && (
-                                <div style={{marginTop: "2rem"}}>
-                                    <h2>Ergebnisse</h2>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={resultData}>
-                                            <CartesianGrid strokeDasharray="3 3"/>
-                                            <XAxis dataKey="name"/>
-                                            <YAxis/>
-                                            <Tooltip/>
-                                            <Bar dataKey="Stimmen" fill="#8884d8"/>
-                                            <Bar dataKey="Kapital" fill="#82ca9d"/>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                    <div style={{marginTop: 24, fontSize: 18}}>
-                                        <b>Regel:</b> {voteSummary.regelText}<br/>
-                                        <b>Kapital anwesend:</b> {voteSummary.kapitalAnwesend}<br/>
-                                        <b>Gesamt Stimmen:</b> {voteSummary.gesamtStimmen}<br/>
-                                        <b>Beschluss:</b> {voteSummary.angenommen ? "Angenommen ✅" : "Abgelehnt ❌"}
-                                    </div>
+                        {voteSummary && (
+                            <>
+                                <h2>Ergebnisse: {voteSummary.topic}</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart data={resultData}>
+                                        <CartesianGrid strokeDasharray="3 3"/>
+                                        <XAxis dataKey="name"/>
+                                        <YAxis/>
+                                        <Tooltip/>
+                                        <Bar dataKey="Stimmen" fill="#8884d8"/>
+                                        <Bar dataKey="Kapital" fill="#82ca9d"/>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{marginTop: 24, fontSize: 18}}>
+                                    <b>Regel:</b> {voteSummary.regelText}<br/>
+                                    <b>Kapital anwesend:</b> {voteSummary.kapitalAnwesend}%<br/>
+                                    <b>Gesamt Stimmen:</b> {voteSummary.gesamtStimmen}<br/>
+                                    <b>Beschluss:</b> {voteSummary.angenommen ? "Angenommen ✅" : "Abgelehnt ❌"}
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

@@ -75,9 +75,14 @@
 
 .action-section {
   display: flex;
-  gap: 2rem;            /* Abstand zwischen Buttons und Info */
+  gap: 2rem;
   align-items: flex-start;
-  margin-bottom: 2rem;  /* Abstand zum nächsten Abschnitt */
+}
+
+.left-column,
+.right-column {
+  flex: 1;
+  box-sizing: border-box;
 }
 
 /* ---- Button-Grid ---- */
@@ -250,45 +255,50 @@
   text-align: center;
 }
 
-.meetings-section {
-  margin-top: 40px;
+.meetings-container {
+  background-color: #fff;
+  margin-top: 2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.meetings-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+.meetings-container h2 {
+  margin: 0 0 1rem;
+}
+
+.meetings-list-scroll {
+  max-height: 300px; /* beliebig anpassbar */
+  overflow-y: auto;
 }
 
 .meeting-card {
   background: #f7f7f7;
-  padding: 20px;
-  border-radius: 8px;
-  width: 280px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .meeting-buttons {
-  margin-top: 10px;
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .meeting-buttons button {
   flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .warning-box {
   background-color: #ffe5e5;
   border: 1px solid #ff0000;
-  padding: 15px;
-  margin-bottom: 20px;
-  color: #b30000;
-  font-weight: bold;
+  padding: 1rem;
   border-radius: 5px;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 
 .vote-results-content h2 {

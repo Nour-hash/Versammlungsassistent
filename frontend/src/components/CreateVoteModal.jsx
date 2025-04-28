@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
+import React, {useState} from "react";
 
-function CreateVotePage() {
+function CreateVoteModal({isOpen, onClose}) {
     const [fileContent, setFileContent] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
@@ -19,35 +18,30 @@ function CreateVotePage() {
         const lines = text.split("\n");
         const voteBlocks = [];
         let current = null;
-
         lines.forEach(line => {
             const match = line.match(/^(\d+)\.\s+(.*)/);
             if (match) {
                 if (current) voteBlocks.push(current);
-                current = { title: match[2], description: "" };
+                current = {title: match[2], description: ""};
             } else if (current && line.trim()) {
                 current.description += line.trim() + " ";
             }
         });
-
-        if (current) voteBlocks.push(current); // letzer Punkt
+        if (current) voteBlocks.push(current);
         return voteBlocks;
     };
 
     const handleCreateVotes = async () => {
         if (!startTime || !endTime) {
-            setMessage("Please provide start and end time");
+            setMessage("Bitte Start- und Endzeit angeben");
             return;
         }
-
         if (new Date(endTime) <= new Date(startTime)) {
-            setMessage("End time must be after start time");
+            setMessage("Endzeit muss nach Startzeit liegen");
             return;
         }
-
         const agendaPoints = parseAgendaPoints(fileContent);
         const token = localStorage.getItem("jwt");
-
         try {
             for (let point of agendaPoints) {
                 const vote = {
@@ -56,51 +50,42 @@ function CreateVotePage() {
                     startTime,
                     endTime
                 };
-
                 const res = await fetch(`${backendUrl}/api/votes/create`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify(vote)
                 });
-
                 if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(errorText);
+                    throw new Error(await res.text());
                 }
             }
-
-            setMessage("All votes created successfully!");
+            setMessage("Alle Abstimmungen erfolgreich erstellt!");
         } catch (err) {
-            setMessage(`Error: ${err.message}`);
+            setMessage(`Fehler: ${err.message}`);
         }
     };
 
+    if (!isOpen) return null;
     return (
-        <div className="page-container">
-            <Sidebar activePage="home" />
-            <div>
-                <h1>Create Votes from Agenda</h1>
-                <input type="file" accept=".txt" onChange={handleFileChange} />
-                <br />
-                <input
-                    type="datetime-local"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                />
-                <input
-                    type="datetime-local"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                />
-                <br />
-                <button onClick={handleCreateVotes}>Create Votes</button>
-                {message && <p>{message}</p>}
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content create-vote-modal" onClick={e => e.stopPropagation()}>
+                <button className="modal-close-button" onClick={onClose}>×</button>
+                <h2>Abstimmungen erstellen</h2>
+                <input type="file" accept=".txt" onChange={handleFileChange}/>
+                <br/>
+                <label>Startzeit:</label>
+                <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)}/>
+                <label>Endzeit:</label>
+                <input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)}/>
+                <br/>
+                <button onClick={handleCreateVotes}>Erstellen</button>
+                {message && <p className="create-vote-message">{message}</p>}
             </div>
         </div>
     );
 }
 
-export default CreateVotePage;
+export default CreateVoteModal;

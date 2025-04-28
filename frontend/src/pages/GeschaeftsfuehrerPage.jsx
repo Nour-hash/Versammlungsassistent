@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import "../styles/GeschaeftsfuehrerPage.css";
 import Sidebar from "../components/Sidebar";
 import VoteResultsContent from "../components/VoteResultsContent";
+import CreateVoteModal from "../components/CreateVoteModal";
 
 function GeschFtsfHrerPage() {
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ function GeschFtsfHrerPage() {
     const [loadingGesellschafter, setLoadingGesellschafter] = useState(false);
     const [noMeetingWarning, setNoMeetingWarning] = useState(false);
     const [showVoteModal, setShowVoteModal] = useState(false);
+    const [showCreateVoteModal, setShowCreateVoteModal] = useState(false);
 
 
     const fetchMeetings = async () => {
@@ -69,7 +71,7 @@ function GeschFtsfHrerPage() {
     };
 
     const goToCreateVotePage = () => {
-        navigate("/create-vote");
+        setShowCreateVoteModal(true);
     };
 
     const handleGoToAgenda = (id) => {
@@ -141,29 +143,70 @@ function GeschFtsfHrerPage() {
             <div className="main-content">
                 <div className="welcome-container">
                     <h1>Willkommen bei AssemBly</h1>
-                    <p>Sie haben sich erfolgreich angemeldet und Ihre GmbH wurde bestätigt.</p>
                 </div>
 
                 <div className="action-section">
-                    <div className="welcome-container buttons-grid">
-                        <div className="button-card" onClick={goToInvitePage}>
-                            <span className="card-label">Einladung erstellen</span>
-                            <button className="card-action-button">+</button>
+                    <div className="left-column">
+                        <div className="welcome-container buttons-grid">
+                            <div className="button-card" onClick={goToInvitePage}>
+                                <span className="card-label">Einladung erstellen</span>
+                                <button className="card-action-button">+</button>
+                            </div>
+                            <div className="button-card" onClick={toggleGesellschafterForm}>
+                                <span className="card-label">Gesellschafter hinzufügen</span>
+                                <button className="card-action-button">+</button>
+                            </div>
+                            <div className="button-card" onClick={goToCreateVotePage}>
+                                <span className="card-label">Neue Abstimmung erstellen</span>
+                                <button className="card-action-button">+</button>
+                            </div>
                         </div>
-                        <div className="button-card" onClick={toggleGesellschafterForm}>
-                            <span className="card-label">Gesellschafter hinzufügen</span>
-                            <button className="card-action-button">+</button>
-                        </div>
-                        <div className="button-card" onClick={goToCreateVotePage}>
-                            <span className="card-label">Neue Abstimmung erstellen</span>
-                            <button className="card-action-button">+</button>
+
+                        <div className="meetings-container">
+                            <h2>Letzte 5 Meetings</h2>
+                            {loadingMeetings ? (
+                                <p>Lädt Meetings…</p>
+                            ) : (
+                                <div className="meetings-list-scroll">
+                                    {meetings.map((meeting) => (
+                                        <div key={meeting.id} className="meeting-card">
+                                            <h3>{meeting.title}</h3>
+                                            <p>{new Date(meeting.dateTime).toLocaleString()}</p>
+                                            <div className="meeting-buttons">
+                                                <button onClick={() => handleGoToAgenda(meeting.id)}>
+                                                    Tagesordnung bearbeiten
+                                                </button>
+                                                <button onClick={() => handleGoToResults(meeting.id)}>
+                                                    Beschlussergebnisse senden
+                                                </button>
+                                            </div>
+                                            {meeting.challenges?.length > 0 && (
+                                                <div className="challenges-section">
+                                                    <h4>Anfechtungen:</h4>
+                                                    <ul>
+                                                        {meeting.challenges.map((email, idx) => (
+                                                            <li key={idx}>{email}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {noMeetingWarning && (
+                                        <div className="warning-box">
+                                            ⚠️ Es wurde noch keine Generalversammlung
+                                            für {new Date().getFullYear()} durchgeführt!
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div className="welcome-container info-container">
+
+                    <div className="welcome-container right-column">
                         <VoteResultsContent/>
                     </div>
                 </div>
-
                 {showGesellschafterForm && (
                     <div className="modal-overlay" onClick={() => setShowGesellschafterForm(false)}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -242,6 +285,11 @@ function GeschFtsfHrerPage() {
                     </div>
                 )}
 
+                {/* CreateVote-Modal */}
+                <CreateVoteModal
+                    isOpen={showCreateVoteModal}
+                    onClose={() => setShowCreateVoteModal(false)}/>
+
                 {showVoteModal && (
                     <div
                         className="modal-overlay"
@@ -262,47 +310,6 @@ function GeschFtsfHrerPage() {
                     </div>
                 )}
 
-                {/* NEUER TEIL - Meetings ganz unten */}
-                <div className="meetings-section">
-                    <h2>Letzte 5 Meetings</h2>
-                    {loadingMeetings ? (
-                        <p>Lädt Meetings...</p>
-                    ) : (
-                        <div className="meetings-list">
-                            {meetings.map((meeting) => (
-                                <div key={meeting.id} className="meeting-card">
-                                    <h3>{meeting.title}</h3>
-                                    <p>{new Date(meeting.dateTime).toLocaleString()}</p>
-                                    <div className="meeting-buttons">
-                                        <button onClick={() => handleGoToAgenda(meeting.id)}>Tagesordnung bearbeiten
-                                        </button>
-                                        <button onClick={() => handleGoToResults(meeting.id)}>Beschlussergebnisse
-                                            senden
-                                        </button>
-                                    </div>
-
-                                    {/* Challenges anzeigen */}
-                                    {meeting.challenges && meeting.challenges.length > 0 && (
-                                        <div className="challenges-section">
-                                            <h4>Anfechtungen:</h4>
-                                            <ul>
-                                                {meeting.challenges.map((email, idx) => (
-                                                    <li key={idx}>{email}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            {noMeetingWarning && (
-                                <div className="warning-box">
-                                    ⚠️ Achtung: Es wurde noch keine Generalversammlung
-                                    für {new Date().getFullYear()} durchgeführt!
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
 
             </div>
         </div>

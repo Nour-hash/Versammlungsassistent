@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import Sidebar from "../components/Sidebar";
+import "../styles/VotePage.css";
 
 function VotePage() {
     const [votes, setVotes] = useState([]);
@@ -12,20 +13,24 @@ function VotePage() {
         const fetchVotes = async () => {
             const token = localStorage.getItem("jwt");
             try {
-                const response = await fetch(`${backendUrl}/api/votes/available`, {
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                });
+                const response = await fetch(
+                    `${backendUrl}/api/votes/available`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
                 if (response.ok) {
                     const data = await response.json();
                     setVotes(data);
                 } else {
                     const errorText = await response.text();
-                    console.error("Error fetching votes:", errorText);
-                    setMessage("Failed to fetch votes: " + errorText);
+                    setMessage("Fehler beim Laden der Abstimmungen: " + errorText);
                 }
-            } catch (error) {
-                console.error("An error occurred while fetching votes:", error);
-                setMessage("An error occurred while fetching votes");
+            } catch (err) {
+                setMessage("Netzwerkfehler beim Laden der Abstimmungen");
             }
         };
         fetchVotes();
@@ -33,78 +38,88 @@ function VotePage() {
 
     const confirmVote = async () => {
         if (!selectedOption) {
-            setMessage("Please select an option before confirming.");
+            setMessage("Bitte wähle eine Option aus.");
             return;
         }
-
         const token = localStorage.getItem("jwt");
         const currentVote = votes[currentVoteIndex];
-
         try {
-            const response = await fetch(`${backendUrl}/api/votes/${currentVote.id}/submit`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(
-                    selectedOption
-
-                    //                    {result: selectedOption hübscher wäre es es so zu schicken} dazu brauch ich die klammern
-                    // Optional: falls Backend explizit userId erwartet
-                    // userId: currentUserId
-                ),
-            });
-
-            const data = await response.text();
+            const response = await fetch(
+                `${backendUrl}/api/votes/${currentVote.id}/submit`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(selectedOption),
+                }
+            );
+            const text = await response.text();
             if (response.ok) {
-                setMessage("Vote submitted successfully!");
+                setMessage("Stimme erfolgreich abgegeben!");
                 setSelectedOption(null);
                 if (currentVoteIndex + 1 < votes.length) {
-                    setCurrentVoteIndex(currentVoteIndex + 1);
+                    setCurrentVoteIndex((i) => i + 1);
                 } else {
-                    setMessage("All votes completed!");
+                    setMessage("Alle Abstimmungen abgeschlossen!");
                     setVotes([]);
                 }
             } else {
-                setMessage(data);
+                setMessage("Fehler: " + text);
             }
-        } catch (error) {
-            console.error("Failed to submit vote:", error);
-            setMessage("Failed to submit vote");
+        } catch {
+            setMessage("Fehler beim Absenden der Stimme.");
         }
     };
 
     if (votes.length === 0) {
-        return <p>{message || "No votes available"}</p>;
+        return (
+            <div className="page-container">
+                <Sidebar activePage="home"/>
+                <div className="centered-content">
+                    <p className="info-text">{message || "Keine Abstimmungen verfügbar."}</p>
+                </div>
+            </div>
+        );
     }
 
     const currentVote = votes[currentVoteIndex];
 
     return (
         <div className="page-container">
-            <Sidebar activePage="home" />
-            <div>
-                <h1>Vote Page</h1>
+            <Sidebar activePage="home"/>
+            <div className="centered-content">
+                <h1>Abstimmung</h1>
                 <h2>{currentVote.topic}</h2>
                 {currentVote.description && (
-    <div style={{ marginBottom: "1rem" }}>
-        <strong>Beschreibung:</strong>
-        <p>{currentVote.description}</p>
-    </div>
-)}
-                <div>
-                    <button onClick={() => setSelectedOption("ja")}>Ja</button>
-                    <button onClick={() => setSelectedOption("nein")}>Nein</button>
-                    <button onClick={() => setSelectedOption("enthalten")}>Enthalten</button>
+                    <p className="description">{currentVote.description}</p>
+                )}
+
+                <div className="options-container">
+                    {["ja", "nein", "enthalten"].map((opt) => (
+                        <button
+                            key={opt}
+                            className={`option-button ${
+                                selectedOption === opt ? "selected" : ""
+                            }`}
+                            onClick={() => setSelectedOption(opt)}
+                        >
+                            {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                        </button>
+                    ))}
                 </div>
+
                 {selectedOption && (
-                    <div>
-                        <p>You selected: {selectedOption}</p>
-                        <button onClick={confirmVote}>Stimmabgabe bestätigen</button>
+                    <div className="confirm-section">
+                        <p>Ausgewählt: <strong>{selectedOption}</strong></p>
+                        <button className="primary-button" onClick={confirmVote}>
+                            Stimme abgeben
+                        </button>
                     </div>
                 )}
-                {message && <p>{message}</p>}
+
+                {message && <p className="message">{message}</p>}
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import "../styles/GesellchafterPage.css";
 
 function GesellschafterPage() {
     const navigate = useNavigate();
@@ -8,7 +9,7 @@ function GesellschafterPage() {
 
     const [meetings, setMeetings] = useState([]);
     const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(true); // NEU
+    const [loading, setLoading] = useState(true);
 
     const token = localStorage.getItem("jwt");
 
@@ -16,23 +17,20 @@ function GesellschafterPage() {
         const fetchMeetings = async () => {
             try {
                 const res = await fetch(`${backendUrl}/api/meetings/my-latest`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {Authorization: `Bearer ${token}`},
                 });
-
                 if (res.ok) {
-                    const data = await res.json();
-                    setMeetings(data);
+                    setMeetings(await res.json());
                 } else {
                     const text = await res.text();
                     setMessage(`Fehler beim Laden der Meetings: ${text}`);
                 }
-            } catch (error) {
+            } catch (err) {
                 setMessage("Netzwerkfehler beim Laden der Meetings");
             } finally {
-                setLoading(false); // Fertig mit Laden
+                setLoading(false);
             }
         };
-
         fetchMeetings();
     }, [backendUrl, token]);
 
@@ -45,14 +43,13 @@ function GesellschafterPage() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             if (res.ok) {
                 setMessage("✅ Anfechtung erfolgreich eingereicht.");
             } else {
                 const text = await res.text();
                 setMessage(`❌ Fehler beim Anfechten: ${text}`);
             }
-        } catch (err) {
+        } catch {
             setMessage("❌ Netzwerkfehler beim Anfechten.");
         }
     };
@@ -63,41 +60,54 @@ function GesellschafterPage() {
 
     return (
         <div className="page-container">
-            <Sidebar activePage="home" />
-            <div className="main-content">
+            <Sidebar activePage="home"/>
+            <div className="centered-content">
                 <h1>Willkommen, Gesellschafter!</h1>
-                <button onClick={goToVotePage}>Zur Abstimmungsseite</button>
+                <button className="primary-button" onClick={goToVotePage}>
+                    Zur Abstimmungsseite
+                </button>
 
-                <p>Hier sind deine letzten 5 Meetings:</p>
-
-                {loading ? (
-                    <p>🔄 Lädt Meetings...</p>
-                ) : (
-                    <div className="meetings-list">
-                        {meetings.length === 0 ? (
-                            <p>Keine Meetings gefunden.</p>
-                        ) : (
-                            meetings.map((meeting) => (
+                <section className="meetings-section">
+                    <h2>Deine letzten 5 Meetings</h2>
+                    {loading ? (
+                        <p className="info-text">🔄 Lädt Meetings...</p>
+                    ) : meetings.length === 0 ? (
+                        <p className="info-text">Keine Meetings gefunden.</p>
+                    ) : (
+                        <div className="meetings-list">
+                            {meetings.map((meeting) => (
                                 <div key={meeting.id} className="meeting-card">
                                     <h3>{meeting.title}</h3>
-                                    <p>Datum: {new Date(meeting.dateTime).toLocaleString()}</p>
-
+                                    <p className="meeting-date">
+                                        {new Date(meeting.dateTime).toLocaleString()}
+                                    </p>
                                     {meeting.resultsSentAt ? (
-                                        <div>
-                                            <button onClick={() => handleChallenge(meeting.id)}>
-                                                Ergebnis anfechten
-                                            </button>
-                                        </div>
+                                        <button
+                                            className="secondary-button"
+                                            onClick={() => handleChallenge(meeting.id)}
+                                        >
+                                            Ergebnis anfechten
+                                        </button>
                                     ) : (
-                                        <p>Beschlussergebnisse noch nicht versendet.</p>
+                                        <p className="info-text">
+                                            Beschlussergebnisse noch nicht versendet.
+                                        </p>
                                     )}
                                 </div>
-                            ))
-                        )}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    )}
+                </section>
 
-                {message && <p style={{ color: message.startsWith("✅") ? "green" : "red" }}>{message}</p>}
+                {message && (
+                    <p
+                        className={
+                            message.startsWith("✅") ? "message-success" : "message-error"
+                        }
+                    >
+                        {message}
+                    </p>
+                )}
             </div>
         </div>
     );

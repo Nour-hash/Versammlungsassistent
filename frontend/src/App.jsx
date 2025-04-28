@@ -5,7 +5,7 @@ import './App.css';
 import GesellschafterPage from "./pages/GesellschafterPage";
 import InvitePage from "./pages/InvitePage"; // Import the InvitePage component
 import VotePage from "./pages/VotePage"; // Import the VotePage component
-import CreateVotePage from "./pages/CreateVotePage"; // Import the CreateVotePage component
+import CreateVoteModal from "./components/CreateVoteModal"; // Import the CreateVoteModal component
 import GeschFtsfHrerPage from "./pages/GeschaeftsfuehrerPage";
 import LoginPage from "./pages/LoginPage"; // Import the VotingSessionPage component
 import AgendaEditPage from "./pages/AgendaEditPage";
@@ -20,7 +20,7 @@ function App() {
                 <Route path="/home" element={<SelectUserType/>}/>
                 <Route path="/invite" element={<InvitePage/>}/> {/* Add invite route */}
                 <Route path="/votes" element={<VotePage/>}/> {/* Add vote route */}
-                <Route path="/create-vote" element={<CreateVotePage/>}/> {/* Add create vote route */}
+                <Route path="/create-vote" element={<CreateVoteModal/>}/> {/* Add create vote route */}
                 <Route path="/vote-results" element={<VoteResultsContent/>}/> {/* Add vote results route */}
                 <Route path="/home" element={<GeschFtsfHrerPage/>}/>
                 <Route path="/meetings/:id/agenda" element={<AgendaEditPage/>} />
