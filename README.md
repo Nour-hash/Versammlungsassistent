@@ -1,33 +1,73 @@
-# Versammlungsassistent
-Hello,
-hier wäre nochmals meine Idee mit konkreten Ideen wie es (vielleicht) umsetzbar wäre:
 
-Konzept: Digitaler Gesellschafterversammlungs-Assistent
-Zielsetzung: Entwicklung einer Softwarelösung, die speziell für die Geschäftsführung von FlexKapGs und GmbHs in Österreich konzipiert ist, um Gesellschafterversammlungen effizienter und kostengünstiger zu organisieren und durchzuführen und allgemein einen Überblick über wichtige Fristen in Zusammenhang mit der Versammlung im Auge zu behalten.
+# AssemBLY
 
-Kernfunktionen:
+## How to Run 🏃‍♂️
 
-E-Voting:
-Ermöglicht eine rechtssichere digitale Abstimmung der Gesellschafter.
--> Es müsste auf jeden Fall die Identität der Gesellschafter festgestellt werden, vielleicht mit Integration von ID-Austria, laut https://www.oesterreich.gv.at/id-austria/Betriebsinformationen-für-ID-Austria-Service-Provider.html wäre das möglich
+### Backend (Spring Boot)
 
-Automatisierte Protokollerstellung:
-Generiert automatisch Protokolle basierend auf den Ergebnissen und Diskussionspunkten der Versammlung.
+1. Erstelle die Datei `src/main/resources/application.properties`
 
-Integration mit Anteilsverwaltungssystemen:
-Verbindet sich nahtlos mit bestehenden Systemen zur Anteilsverwaltung, um Datenflüsse zu optimieren und Doppelarbeit zu vermeiden.
--> Optimal wäre hier natürlich eine Schnittstelle mit dem Firmenbuch, bzw. dem Unternehmensserviceportal (https://www.usp.gv.at/), Ich nehme aber an dass das nicht/schwer möglich sein wird.
--> Sonst dass manuell die Gesellschafter und wie viele Anteile sie besitzen eingetragen werden können weil davon auch abhängig ist wie viele Stimmen einem Gesellschafter zukommen.
+   ```properties
+   server.port=5000
+   spring.datasource.url=jdbc:mysql://localhost:3306/versammlungsassistent
+   spring.datasource.username=root
+   spring.datasource.password=
+   spring.jpa.hibernate.ddl-auto=update
+   spring.jpa.show-sql=true
+   mailjet.api.public=DEIN_PUBLIC_KEY
+   mailjet.api.private=DEIN_PRIVATE_KEY
+   jwt.secret=DEIN_SECRET
+   ```
 
-Vorbereitung von Beschlussvorlagen:
-Unterstützt bei der Erstellung und Verwaltung von Beschlussvorlagen vor der Versammlung.
+2. Installiere die Abhängigkeiten:
 
-Fristen- und Erinnerungsmanagement:
-Bietet Geschäftsführern einen umfassenden Überblick über wichtige Fristen, wie etwa:
-Rechtzeitige Mitteilung an Gesellschafter,
-Überwachung und Verwaltung von Fristen im Zusammenhang mit Anfechtungsklagen.
+   ```bash
+   mvn clean install
+   ```
 
-Automatisierte Kommunikation:
-Automatische Versendung von E-Mails an alle Gesellschafter, inklusive:
-Einladungen zu Versammlungen,
-Übermittlung von Beschlussvorlagen und anschließenden Ergebnissen.
+3. Starte das Backend:
+   - In IntelliJ: Rechtsklick auf `Application.java` → **Run**
+
+---
+
+### Frontend (React)
+
+1. Wechsle ins Frontend-Verzeichnis:
+
+   ```bash
+   cd frontend
+   ```
+
+2. Erstelle die Datei `frontend/.env`
+
+   ```env
+   REACT_APP_BACKEND_URL=http://localhost:5000
+   ```
+
+3. Installiere die Abhängigkeiten:
+
+   ```bash
+   npm install
+   ```
+
+4. Starte das Frontend:
+
+   ```bash
+   npm start
+   ```
+
+---
+
+## Voraussetzungen
+
+- **MySQL** (mit einer Datenbank `versammlungsassistent`)
+- **Node.js** und **npm**
+- **Maven**
+- **Java 17+**
+- **IntelliJ IDEA** (oder eine andere Java IDE)
+
+
+**Hinweis:**  
+Vergiss nicht, deine Mailjet API Keys und das JWT Secret korrekt einzutragen!
+
+
