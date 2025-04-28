@@ -137,11 +137,6 @@ function GeschFtsfHrerPage() {
     return (
         <div className="page-container">
             <Sidebar activePage="home"/>
-            {noMeetingWarning && (
-                <div className="warning-box">
-                    ⚠️ Achtung: Es wurde noch keine Generalversammlung für {new Date().getFullYear()} durchgeführt!
-                </div>
-            )}
 
             <div className="main-content">
                 <div className="welcome-container">
@@ -299,9 +294,13 @@ function GeschFtsfHrerPage() {
                                     )}
                                 </div>
                             ))}
-
+                            {noMeetingWarning && (
+                                <div className="warning-box">
+                                    ⚠️ Achtung: Es wurde noch keine Generalversammlung
+                                    für {new Date().getFullYear()} durchgeführt!
+                                </div>
+                            )}
                         </div>
-
                     )}
                 </div>
 

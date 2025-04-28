@@ -5,14 +5,14 @@ import AgendaSuggestions from "../pages/AgendaSuggestions";
 import "../styles/AgendaSuggestions.css";
 
 const richAgendaSuggestions = [
-    "Beschlussfassung über die Bestellung eines neuen Geschäftsführers – Vorschlag zur Bestellung von [Name, ggf. mit Titel] als Geschäftsführer der Gesellschaft mit Wirkung zum [Datum] gemäß § 15 GmbHG.",
-    "Beschlussfassung über die Änderung des Gesellschaftsvertrags betreffend die Dauer der Geschäftsführungsbestellung – Änderung von § [X] des Gesellschaftsvertrags dahingehend, dass die Geschäftsführer künftig auf 5 Jahre bestellt werden.",
-    "Genehmigung der Anschaffung von Maschinen/IT-Systemen/Mobiliar in Höhe von insgesamt bis zu EUR 50.000,00 im Geschäftsjahr 2025.",
+    "Beschlussfassung über die Bestellung eines neuen Geschäftsführers - Vorschlag zur Bestellung von [Name, ggf. mit Titel] als Geschäftsführer der Gesellschaft mit Wirkung zum [Datum] gemäß § 15 GmbHG.",
+    "Beschlussfassung über die Änderung des Gesellschaftsvertrags betreffend die Dauer der Geschäftsführungsbestellung - Änderung von § [X] des Gesellschaftsvertrags dahingehend, dass die Geschäftsführer künftig auf 5 Jahre bestellt werden.",
+    "Genehmigung der Anschaffung von Maschinen/IT-Systemen/Mobiliar in Höhe von insgesamt bis zu EUR 50000,00 im Geschäftsjahr 2025.",
     "Feststellung der Beschlussfähigkeit und Einverständnis zu den Tagesordnungspunkten",
-    "Genehmigung des Jahresabschlusses für das Geschäftsjahr 2024 – Vorlage und Erläuterung durch die Geschäftsführung",
-    "Beschlussfassung über die Verwendung des Bilanzgewinns – Ausschüttung in Höhe von EUR 20’000 an die Gesellschafter",
+    "Genehmigung des Jahresabschlusses für das Geschäftsjahr 2024 - Vorlage und Erläuterung durch die Geschäftsführung",
+    "Beschlussfassung über die Verwendung des Bilanzgewinns - Ausschüttung in Höhe von EUR 20'000 an die Gesellschafter",
     "Entlastung der Geschäftsführung für das Geschäftsjahr 2024",
-    "Beschlussfassung über Einführung virtueller Gesellschafterversammlungen – Ergänzung von § 9 des Gesellschaftsvertrags"
+    "Beschlussfassung über Einführung virtueller Gesellschafterversammlungen - Ergänzung von § 9 des Gesellschaftsvertrags"
 ];
 
 const InvitePage = () => {
