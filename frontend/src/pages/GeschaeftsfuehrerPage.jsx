@@ -15,6 +15,7 @@ function GeschFtsfHrerPage() {
     const [gesellschafterEmail, setGesellschafterEmail] = useState("");
     const [gesellschafterPasswort, setGesellschafterPasswort] = useState("");
     const [gesellschafterStimmen, setGesellschafterStimmen] = useState("");
+    const [gesellschafterKapital, setGesellschafterKapital] = useState("");
     const [gesellschafterSuccess, setGesellschafterSuccess] = useState("");
     const [gesellschafterError, setGesellschafterError] = useState("");
     const [loadingGesellschafter, setLoadingGesellschafter] = useState(false);
@@ -85,6 +86,7 @@ function GeschFtsfHrerPage() {
         setGesellschafterName("");
         setGesellschafterEmail("");
         setGesellschafterStimmen("");
+        setGesellschafterKapital("");
         setShowGesellschafterForm(!showGesellschafterForm);
     };
 
@@ -107,12 +109,13 @@ function GeschFtsfHrerPage() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` // Hier wird der Token angehängt
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     email: gesellschafterEmail,
                     password: gesellschafterPasswort,
-                    shares: parseInt(gesellschafterStimmen, 10)
+                    stimmen: parseInt(gesellschafterStimmen, 10),
+                    kapital: parseFloat(gesellschafterKapital)
                 }),
             });
 
@@ -221,9 +224,12 @@ function GeschFtsfHrerPage() {
                                 </div>
                                 <div className="form-row">
                                     <input
-                                        type="percentage"
+                                        type="number"
                                         className="gesellschafter-input"
-                                        placeholder="Anzahl am Standkapital in %"
+                                        placeholder="Eingebrachtes Kapital (z.B. 1000)"
+                                        value={gesellschafterKapital}
+                                        onChange={(e) => setGesellschafterKapital(e.target.value)}
+                                        required
                                     />
                                 </div>
                                 <button className="gesellschafter-submit-button" type="submit"

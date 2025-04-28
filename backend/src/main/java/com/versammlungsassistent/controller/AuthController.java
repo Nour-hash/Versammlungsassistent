@@ -46,7 +46,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid role. Role must be 1 (Gesellschafter) or 2 (Geschäftsführer)");
         }
 
-        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName(), request.getShares());
+        userService.saveUser(request.getEmail(), request.getPassword(), String.valueOf(request.getRole()), request.getCompanyName(), request.getStimmen(), request.getKapital());
         return ResponseEntity.ok("User registered successfully");
     }
 
@@ -73,7 +73,8 @@ public class AuthController {
                     request.getPassword(),
                     "1",
                     geschaeftsfuehrer.getCompany().getName(), // Company des Geschäftsführers
-                    request.getShares()
+                    request.getStimmen(),
+                    request.getKapital()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -158,7 +159,8 @@ public class AuthController {
     public static class GesellschafterRequest {
         private String email;
         private String password;
-        private Integer shares; // Anzahl Stimmen
+        private Integer stimmen; // Anzahl Stimmen
+        private Double kapital; // Anteil am Kapital
 
         // Getter und Setter
         public String getEmail() {
@@ -177,12 +179,20 @@ public class AuthController {
             this.password = password;
         }
 
-        public Integer getShares() {
-            return shares;
+        public Integer getStimmen() {
+            return stimmen;
         }
 
-        public void setShares(Integer shares) {
-            this.shares = shares;
+        public void setStimmen(Integer stimmen) {
+            this.stimmen = stimmen;
+        }
+
+        public Double getKapital() {
+            return kapital;
+        }
+
+        public void setKapital(Double kapital) {
+            this.kapital = kapital;
         }
     }
 
@@ -192,7 +202,8 @@ public class AuthController {
         private String password;
         private int role; // Role as an integer (1 or 2)
         private String companyName; // Company name
-        private Integer shares; // Shares for Gesellschafter
+        private Integer stimmen; // Stimmen for Gesellschafter
+        private Double kapital; // Kapital for Gesellschafter
 
         public String getEmail() {
             return email;
@@ -226,12 +237,20 @@ public class AuthController {
             this.companyName = companyName;
         }
 
-        public Integer getShares() {
-            return shares;
+        public Integer getStimmen() {
+            return stimmen;
         }
 
-        public void setShares(Integer shares) {
-            this.shares = shares;
+        public void setStimmen(Integer stimmen) {
+            this.stimmen = stimmen;
+        }
+
+        public Double getKapital() {
+            return kapital;
+        }
+
+        public void setKapital(Double kapital) {
+            this.kapital = kapital;
         }
     }
 
