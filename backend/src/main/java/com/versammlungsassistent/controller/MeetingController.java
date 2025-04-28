@@ -79,7 +79,7 @@ public class MeetingController {
         response.put("meetingType", meeting.getMeetingType());
         response.put("locationOrLink", meeting.getLocationOrLink());
         response.put("agendaItems", meeting.getAgendaItems());
-        response.put("userShares", user.getShares() != null ? user.getShares() : 0);
+        response.put("userStimmen", user.getStimmen() != null ? user.getStimmen() : 0);
         response.put("challenges", meeting.getChallenges());
 
         if (meeting.getResultsSentAt() != null) {
@@ -104,7 +104,7 @@ public class MeetingController {
             return ResponseEntity.status(403).body("Nicht berechtigt: andere Firma.");
         }
 
-        if (user.getShares() == null || user.getShares() < 10) {
+        if (user.getStimmen() == null || user.getStimmen() < 10) {
             return ResponseEntity.status(403).body("Nicht berechtigt: weniger als 10% Anteile.");
         }
 
