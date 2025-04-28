@@ -1,6 +1,7 @@
 package com.versammlungsassistent.model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class Meeting {
 
     private String title;
 
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime dateTime;
 
     private String meetingType;
@@ -45,6 +47,7 @@ public class Meeting {
     @ElementCollection
     private List<String> challenges = new ArrayList<>();
 
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime resultsSentAt;
 
     @ElementCollection
@@ -69,7 +72,9 @@ public class Meeting {
         return title;
     }
 
-    public void setTitle(String title) { this.title = title; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public LocalDateTime getDateTime() {
         return dateTime;
