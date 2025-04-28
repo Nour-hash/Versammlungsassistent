@@ -62,7 +62,6 @@ function VoteResultsContent() {
 
     return (
         <div className="vote-results-container">
-            {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
             <h2>Abstimmungen:</h2>
             <ul className="vote-list">
                 {votes.map((vote) => (
