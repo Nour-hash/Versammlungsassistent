@@ -23,7 +23,7 @@ public class MailjetEmailService {
 
         Map<String, Object> message = new HashMap<>();
         message.put("From", Map.of(
-                "Email", "yunuskr40@gmail.com",
+                "Email", "nour.nassar@stud.fh-campuswien.ac.at",
                 "Name", "Versammlungsassistent"
         ));
         message.put("To", List.of(Map.of(

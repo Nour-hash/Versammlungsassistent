@@ -12,6 +12,12 @@ import com.versammlungsassistent.util.JwtUtil;
 import com.versammlungsassistent.util.PdfGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.versammlungsassistent.model.Vote;
+import com.versammlungsassistent.model.VoteResult;
+import com.versammlungsassistent.repository.VoteRepository;
+import com.versammlungsassistent.repository.UserRepository;
+import com.versammlungsassistent.model.User;
+import com.versammlungsassistent.util.PdfGenerator;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,14 +34,22 @@ public class MeetingController {
     private final MeetingService meetingService;
     private final MeetingEmailService meetingEmailService;
 
+    private final VoteRepository voteRepository;
+    private final UserRepository userRepository;
+
     public MeetingController(UserService userService, JwtUtil jwtUtil,
                              MeetingService meetingService,
-                             MeetingEmailService meetingEmailService) {
+                             MeetingEmailService meetingEmailService,
+                             VoteRepository voteRepository,
+                             UserRepository userRepository) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.meetingService = meetingService;
         this.meetingEmailService = meetingEmailService;
+        this.voteRepository = voteRepository;
+        this.userRepository = userRepository;
     }
+
 
     // 1️⃣ Meeting erstellen + Einladungen senden
     @PostMapping
@@ -89,7 +103,6 @@ public class MeetingController {
         return ResponseEntity.ok(response);
     }
 
-    // 3️⃣ Tagesordnungspunkt hinzufügen (nur berechtigte Gesellschafter)
     @PostMapping("/{id}/agenda")
     public ResponseEntity<?> addAgendaItem(
             @PathVariable Long id,
@@ -104,8 +117,21 @@ public class MeetingController {
             return ResponseEntity.status(403).body("Nicht berechtigt: andere Firma.");
         }
 
-        if (user.getStimmen() == null || user.getStimmen() < 10) {
-            return ResponseEntity.status(403).body("Nicht berechtigt: weniger als 10% Anteile.");
+        // ✅ Korrekte Prozentberechnung
+        List<User> allUsers = userService.findByCompanyId(user.getCompany().getId());
+        int totalStimmen = allUsers.stream()
+                .filter(u -> u.getStimmen() != null)
+                .mapToInt(User::getStimmen)
+                .sum();
+
+        if (totalStimmen == 0) {
+            return ResponseEntity.badRequest().body("Keine Stimmen im System registriert.");
+        }
+
+        double userSharePercentage = (user.getStimmen() * 100.0) / totalStimmen;
+
+        if (userSharePercentage < 10.0) {
+            return ResponseEntity.status(403).body("Nicht berechtigt: weniger als 10% der Stimmen.");
         }
 
         long days = Duration.between(LocalDateTime.now(), meeting.getDateTime()).toDays();
@@ -118,6 +144,7 @@ public class MeetingController {
 
         return ResponseEntity.ok(meeting);
     }
+
 
     @PostMapping("/{id}/results")
     public ResponseEntity<?> sendResults(
@@ -231,5 +258,95 @@ public class MeetingController {
         return ResponseEntity.ok("Anfechtung erfolgreich eingereicht.");
     }
 
+    @DeleteMapping("/{meetingId}/agenda/{index}")
+    public ResponseEntity<?> deleteAgendaItem(
+            @PathVariable Long meetingId,
+            @PathVariable int index,
+            @RequestHeader("Authorization") String token
+    ) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+        Meeting meeting = meetingService.findById(meetingId);
+
+        if (!meeting.getCompany().equals(user.getCompany())) {
+            return ResponseEntity.status(403).body("Nicht berechtigt: andere Firma.");
+        }
+
+        if (user.getStimmen() == null || user.getStimmen() < 10) {
+            return ResponseEntity.status(403).body("Nicht berechtigt: weniger als 10% Anteile.");
+        }
+
+        long days = Duration.between(LocalDateTime.now(), meeting.getDateTime()).toDays();
+        if (days < 3) {
+            return ResponseEntity.status(403).body("Tagesordnung kann 3 Tage vor Versammlung nicht mehr verändert werden.");
+        }
+
+        List<String> agenda = meeting.getAgendaItems();
+        if (index < 0 || index >= agenda.size()) {
+            return ResponseEntity.badRequest().body("Ungültiger Index.");
+        }
+
+        agenda.remove(index);
+        meetingService.save(meeting);
+
+        return ResponseEntity.ok(meeting);
+    }
+
+    @GetMapping("/{id}/generate-results")
+    public ResponseEntity<?> generateMeetingResults(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email).orElseThrow();
+        Meeting meeting = meetingService.findById(id);
+
+        if (!meeting.getCompany().equals(user.getCompany()) || !"2".equals(user.getRole())) {
+            return ResponseEntity.status(403).body("Nicht berechtigt.");
+        }
+
+        List<Vote> votes = voteRepository.findByCompanyId(user.getCompany().getId());
+
+        StringBuilder resultsText = new StringBuilder();
+        resultsText.append("Beschlussergebnisse der Versammlung: ").append(meeting.getTitle()).append("\n\n");
+
+        for (Vote vote : votes) {
+            if (vote.getStartTime().isAfter(meeting.getDateTime())) {
+                continue; // Nur Votes berücksichtigen, die vor dem Meeting gestartet wurden
+            }
+
+            int ja = 0, nein = 0, enthalten = 0;
+            double kapitalJa = 0, kapitalNein = 0, kapitalEnthalten = 0;
+            double gesamtKapital = 0;
+
+            for (VoteResult result : vote.getResults()) {
+                User voter = userRepository.findById(result.getUserId()).orElse(null);
+                double kapital = (voter != null && voter.getKapital() != null) ? voter.getKapital() : 0.0;
+                gesamtKapital += kapital;
+                switch (result.getResult().toLowerCase()) {
+                    case "ja" -> {
+                        ja++;
+                        kapitalJa += kapital;
+                    }
+                    case "nein" -> {
+                        nein++;
+                        kapitalNein += kapital;
+                    }
+                    case "enthalten" -> {
+                        enthalten++;
+                        kapitalEnthalten += kapital;
+                    }
+                }
+            }
+
+            double kapitalAnwesend = kapitalJa + kapitalNein + kapitalEnthalten;
+            boolean angenommen = (kapitalAnwesend >= 10.0) && (ja > (ja + nein + enthalten) / 2.0);
+
+            resultsText.append("- Thema: ").append(vote.getTopic()).append("\n")
+                    .append("  Ja-Stimmen: ").append(ja).append(" (Kapital: ").append(String.format("%.2f", kapitalJa)).append("%)\n")
+                    .append("  Nein-Stimmen: ").append(nein).append(" (Kapital: ").append(String.format("%.2f", kapitalNein)).append("%)\n")
+                    .append("  Enthaltungen: ").append(enthalten).append(" (Kapital: ").append(String.format("%.2f", kapitalEnthalten)).append("%)\n")
+                    .append("  Beschluss: ").append(angenommen ? "Angenommen ✅" : "Abgelehnt ❌").append("\n\n");
+        }
+
+        return ResponseEntity.ok(resultsText.toString());
+    }
 
 }

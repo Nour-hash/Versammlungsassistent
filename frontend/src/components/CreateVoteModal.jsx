@@ -6,12 +6,33 @@ function CreateVoteModal({isOpen, onClose}) {
     const [endTime, setEndTime] = useState("");
     const [message, setMessage] = useState("");
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    const [meetings, setMeetings] = useState([]);
+    const [selectedMeetingId, setSelectedMeetingId] = useState("");
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onload = (event) => setFileContent(event.target.result);
         reader.readAsText(file);
+    };
+
+    const fetchMeetings = async () => {
+        const token = localStorage.getItem("jwt");
+
+        try {
+            const res = await fetch(`${backendUrl}/api/meetings/latest`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setMeetings(data);
+            } else {
+                console.error(await res.text());
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const parseAgendaPoints = (text) => {
@@ -48,7 +69,8 @@ function CreateVoteModal({isOpen, onClose}) {
                     topic: point.title,
                     description: point.description.trim(),
                     startTime,
-                    endTime
+                    endTime,
+                    meetingId: selectedMeetingId
                 };
                 const res = await fetch(`${backendUrl}/api/votes/create`, {
                     method: "POST",
@@ -75,6 +97,14 @@ function CreateVoteModal({isOpen, onClose}) {
                 <button className="modal-close-button" onClick={onClose}>×</button>
                 <h2>Abstimmungen erstellen</h2>
                 <input type="file" accept=".txt" onChange={handleFileChange}/>
+                <br/>
+                <label>Meeting auswählen:</label>
+                <select value={selectedMeetingId} onChange={e => setSelectedMeetingId(e.target.value)}>
+                    <option value="">-- Meeting wählen --</option>
+                    {meetings.map(m => (
+                        <option key={m.id} value={m.id}>{m.title} ({new Date(m.dateTime).toLocaleDateString()})</option>
+                    ))}
+                </select>
                 <br/>
                 <label>Startzeit:</label>
                 <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)}/>

@@ -31,6 +31,11 @@ public class UserService {
         return userRepository.findByCompany_NameAndRole(companyName, "1"); // 1 = Gesellschafter
     }
 
+    public List<User> findByCompanyId(Long companyId) {
+        return userRepository.findByCompanyId(companyId);
+    }
+
+
     public User saveUser(String email, String rawPassword, String role, String companyName, Integer stimmen, Double kapital) {
         if (companyName == null || companyName.trim().isEmpty()) {
             throw new IllegalArgumentException("Company name cannot be null or empty");

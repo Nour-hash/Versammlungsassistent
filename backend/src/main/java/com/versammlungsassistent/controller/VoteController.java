@@ -1,15 +1,18 @@
 package com.versammlungsassistent.controller;
 
+import com.versammlungsassistent.model.Meeting;
 import com.versammlungsassistent.model.User;
 import com.versammlungsassistent.model.Vote;
 import com.versammlungsassistent.model.VoteResult;
 import com.versammlungsassistent.repository.UserRepository;
 import com.versammlungsassistent.repository.VoteRepository;
+import com.versammlungsassistent.service.MeetingService;
 import com.versammlungsassistent.service.UserService;
 import com.versammlungsassistent.util.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,34 +25,66 @@ public class VoteController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final MeetingService meetingService; // <-- hinzufügen
 
-    public VoteController(VoteRepository voteRepository, UserService userService, JwtUtil jwtUtil, UserRepository userRepository) {
+    // Konstruktor
+    public VoteController(
+            VoteRepository voteRepository,
+            UserService userService,
+            JwtUtil jwtUtil,
+            UserRepository userRepository,
+            MeetingService meetingService // <-- HIER hinzufügen
+    ) {
         this.voteRepository = voteRepository;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.meetingService = meetingService; // <-- und speichern
     }
+
 
     @PostMapping("/create")
-public ResponseEntity<String> createVote(@RequestHeader("Authorization") String token,
-                                         @RequestBody Vote vote) {
-    String email = jwtUtil.extractUsername(token.substring(7));
-    User user = userService.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<String> createVote(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, Object> requestBody // <- WICHTIG: Map statt Vote direkt
+    ) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    if (!"2".equals(user.getRole())) {
-        return ResponseEntity.status(403).body("Access denied: Only Geschäftsführer can create votes");
+        if (!"2".equals(user.getRole())) {
+            return ResponseEntity.status(403).body("Access denied: Only Geschäftsführer can create votes");
+        }
+
+        String topic = (String) requestBody.get("topic");
+        String description = (String) requestBody.get("description");
+        String startTimeStr = (String) requestBody.get("startTime");
+        String endTimeStr = (String) requestBody.get("endTime");
+        Long meetingId = requestBody.get("meetingId") != null ? Long.parseLong(requestBody.get("meetingId").toString()) : null;
+
+        if (topic == null || startTimeStr == null || endTimeStr == null || meetingId == null) {
+            return ResponseEntity.badRequest().body("Missing required fields");
+        }
+
+        Vote vote = new Vote();
+        vote.setTopic(topic);
+        vote.setDescription(description);
+        vote.setStartTime(LocalDateTime.parse(startTimeStr));
+        vote.setEndTime(LocalDateTime.parse(endTimeStr));
+        vote.setCompany(user.getCompany());
+
+        Meeting meeting = meetingService.findById(meetingId);
+        vote.setMeeting(meeting);
+
+        if (vote.getEndTime().isBefore(vote.getStartTime())) {
+            return ResponseEntity.badRequest().body("End time cannot be before start time");
+        }
+
+        voteRepository.save(vote);
+
+        return ResponseEntity.ok("Vote created successfully");
     }
 
-    if (vote.getEndTime().isBefore(vote.getStartTime())) {
-        return ResponseEntity.badRequest().body("End time cannot be before start time");
-    }
-
-    vote.setCompany(user.getCompany()); // Sicherheit: company nicht aus dem Body nehmen
-    voteRepository.save(vote);
-
-    return ResponseEntity.ok("Vote created successfully");
-}
 
     @PostMapping("/{voteId}/submit")
 public ResponseEntity<String> submitVote(@RequestHeader("Authorization") String token, @PathVariable Long voteId, @RequestBody String result) {
